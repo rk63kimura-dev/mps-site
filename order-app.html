@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mother's Peace Sand — Order</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --warm: #e8ddd0;
+    --brown: #5c4033;
+    --dark: #2a1f1a;
+    --accent: #c8955a;
+    --light-accent: #e8c99a;
+    --text: #3a2e28;
+    --muted: #8a7060;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 120px;
+  }
+
+  header {
+    background: var(--dark);
+    padding: 24px 24px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      45deg, transparent, transparent 8px,
+      rgba(255,255,255,0.015) 8px, rgba(255,255,255,0.015) 16px
+    );
+  }
+
+  .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 300;
+    letter-spacing: 0.15em; color: var(--light-accent); position: relative;
+  }
+
+  .brand-sub {
+    font-size: 10px; letter-spacing: 0.25em;
+    color: rgba(255,255,255,0.35); margin-top: 4px;
+    text-transform: uppercase; position: relative;
+  }
+
+  .header-tagline {
+    position: relative;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    font-size: 17px;
+    font-weight: 400;
+    color: white;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+  }
+
+  .header-tagline span {
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    display: block;
+    margin-top: 4px;
+    letter-spacing: 0.15em;
+  }
+
+  .section-label {
+    font-size: 10px; letter-spacing: 0.3em;
+    color: var(--muted); text-transform: uppercase;
+    padding: 20px 20px 10px; border-bottom: 1px solid var(--warm);
+  }
+
+  .menu-list { padding: 0 16px; }
+
+  .menu-item {
+    display: flex; align-items: center;
+    padding: 16px 4px; border-bottom: 1px solid var(--warm); gap: 12px;
+  }
+
+  .item-emoji { font-size: 26px; width: 38px; text-align: center; flex-shrink: 0; }
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-size: 14px; font-weight: 400; color: var(--dark); line-height: 1.4; }
+  .item-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 400;
+    color: var(--accent); margin-top: 4px; letter-spacing: 0.05em;
+  }
+
+  .counter {
+    display: flex; align-items: center;
+    background: white; border: 1px solid var(--warm);
+    border-radius: 22px; overflow: hidden; flex-shrink: 0;
+  }
+
+  .counter-btn {
+    width: 36px; height: 36px; border: none; background: transparent;
+    font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent; transition: background 0.15s;
+  }
+
+  .counter-btn:active { background: var(--warm); }
+  .counter-btn.minus { color: var(--muted); }
+  .counter-btn.plus { color: var(--accent); font-size: 20px; }
+  .counter-value { width: 28px; text-align: center; font-size: 15px; color: var(--dark); }
+  .counter-value.active { color: var(--accent); }
+
+  /* 名前・時間 共通カード */
+  .input-card {
+    padding: 16px 20px; background: white;
+    margin: 12px 16px; border-radius: 12px; border: 1px solid var(--warm);
+  }
+
+  .input-card + .input-card { margin-top: 0; }
+
+  .field-label {
+    font-size: 11px; letter-spacing: 0.2em; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 8px; display: block;
+  }
+
+  .name-input {
+    width: 100%; border: none; border-bottom: 1.5px solid var(--warm);
+    background: transparent; font-family: 'Noto Sans JP', sans-serif;
+    font-size: 16px; color: var(--dark); padding: 4px 0 8px; outline: none; transition: border-color 0.2s;
+  }
+
+  .name-input:focus { border-bottom-color: var(--accent); }
+  .name-input::placeholder { color: var(--muted); font-size: 14px; }
+
+  /* ピックアップ時間 プルダウン */
+  .time-select-wrap {
+    position: relative;
+  }
+
+  .time-select {
+    width: 100%;
+    border: none;
+    border-bottom: 1.5px solid var(--warm);
+    background: transparent;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 16px;
+    color: var(--dark);
+    padding: 4px 32px 8px 0;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .time-select:focus { border-bottom-color: var(--accent); }
+
+  .time-select option[value=""] { color: var(--muted); }
+
+  .time-arrow {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-60%);
+    pointer-events: none;
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  .order-summary {
+    margin: 0 16px 8px; padding: 12px 16px;
+    background: rgba(200,149,90,0.08); border-radius: 10px;
+    border: 1px dashed var(--light-accent); display: none;
+  }
+
+  .order-summary.visible { display: block; }
+  .summary-title { font-size: 10px; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+  .summary-row { display: flex; justify-content: space-between; font-size: 13px; padding: 2px 0; }
+  .summary-total { border-top: 1px solid var(--light-accent); margin-top: 6px; padding-top: 6px; font-weight: 400; color: var(--dark); }
+
+  .submit-wrap {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--cream) 60%, transparent);
+  }
+
+  .submit-btn {
+    width: 100%; padding: 16px; background: var(--dark); color: var(--light-accent);
+    border: none; border-radius: 14px;
+    font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 300; letter-spacing: 0.15em;
+    cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+  }
+
+  .submit-btn:disabled { background: #c0b8b0; color: rgba(255,255,255,0.5); cursor: not-allowed; }
+  .submit-btn:not(:disabled):active { transform: scale(0.98); background: var(--brown); }
+  .submit-btn .loading { display: none; align-items: center; justify-content: center; gap: 6px; }
+  .submit-btn.sending .btn-label { display: none; }
+  .submit-btn.sending .loading { display: flex; }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .success-screen {
+    display: none; position: fixed; inset: 0; background: var(--cream);
+    align-items: center; justify-content: center;
+    flex-direction: column; text-align: center; padding: 40px; z-index: 100;
+  }
+
+  .success-screen.show { display: flex; }
+  .success-icon { font-size: 52px; margin-bottom: 16px; animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+
+  @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .success-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300;
+    color: var(--dark); letter-spacing: 0.1em; margin-bottom: 10px;
+  }
+
+  .success-msg { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 28px; }
+
+  .success-detail {
+    background: white; border: 1px solid var(--warm); border-radius: 12px;
+    padding: 16px 20px; width: 100%; max-width: 320px; text-align: left;
+    font-size: 13px; color: var(--text); line-height: 1.8; margin-bottom: 28px;
+  }
+
+  .back-btn {
+    padding: 12px 32px; background: transparent;
+    border: 1.5px solid var(--brown); border-radius: 30px;
+    font-family: 'Cormorant Garamond', serif; font-size: 16px; letter-spacing: 0.15em;
+    color: var(--brown); cursor: pointer; transition: all 0.2s;
+  }
+
+  .back-btn:active { background: var(--warm); }
+
+  .error-msg {
+    margin: 8px 16px; padding: 10px 14px;
+    background: #fef0f0; border: 1px solid #f5c0c0;
+    border-radius: 8px; font-size: 12px; color: #c0392b; display: none;
+  }
+
+  .error-msg.show { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-name">Mother's Peace Sand</div>
+  <div class="brand-sub">Morning Order</div>
+  <div class="header-tagline">
+    ボタンでかんたん注文
+    <span>商品を選んでお名前を入力し、注文を送ってください</span>
+  </div>
+</header>
+
+<div class="section-label">Menu</div>
+<div class="menu-list" id="menuList"></div>
+
+<!-- お名前 -->
+<div class="input-card">
+  <span class="field-label">お名前</span>
+  <input class="name-input" id="nameInput" type="text" placeholder="例：田中" maxlength="20" />
+</div>
+
+<!-- ピックアップ時間 -->
+<div class="input-card" style="margin-top:0; border-top: none; border-radius: 0 0 12px 12px; border-top: 1px solid var(--warm);">
+  <span class="field-label">🕐 ピックアップ時間</span>
+  <div class="time-select-wrap">
+    <select class="time-select" id="pickupTime">
+      <option value="">時間を選んでください</option>
+    </select>
+    <span class="time-arrow">▼</span>
+  </div>
+</div>
+
+<div class="order-summary" id="orderSummary">
+  <div class="summary-title">Order</div>
+  <div id="summaryItems"></div>
+  <div class="summary-row summary-total">
+    <span>合計</span>
+    <span id="summaryTotal">¥0</span>
+  </div>
+</div>
+
+<div class="error-msg" id="errorMsg"></div>
+
+<div class="submit-wrap">
+  <button class="submit-btn" id="submitBtn" onclick="submitOrder()">
+    <span class="btn-label">注文を送る</span>
+    <span class="loading"><span class="spinner"></span>送信中…</span>
+  </button>
+</div>
+
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">🥪</div>
+  <div class="success-title">Order Received!</div>
+  <div class="success-msg">ご注文ありがとうございます。<br>準備できましたらお声がけします。</div>
+  <div class="success-detail" id="successDetail"></div>
+  <button class="back-btn" onclick="resetOrder()">新しい注文</button>
+</div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxqOv9ER6tSW6JEHeQKse1tyTAH7hEli_A1wkoc_oU77uuLcLBzcJUz9za_xwzvs3MtOw/exec';
+
+const MENU = [
+  { id: 'pork',     emoji: '🥩', name: 'プルドポークサンド',                price: 500 },
+  { id: 'cheese',   emoji: '🧀', name: 'チェダーチーズ追加',                price: 100 },
+  { id: 'chicken',  emoji: '🍋', name: 'ハーブチキンとキャロットラペのサンド', price: 500 },
+  { id: 'focaccia', emoji: '🍞', name: 'フォカッチャ単品',                   price: 250 },
+  { id: 'potato',   emoji: '🥔', name: 'クリームポテト',                     price: 300 },
+];
+
+let counts = {};
+MENU.forEach(m => counts[m.id] = 0);
+
+// 7:15〜10:30まで15分刻みの時間を生成
+function buildTimeOptions() {
+  const select = document.getElementById('pickupTime');
+  const start = { h: 7, m: 15 };
+  const end   = { h: 10, m: 30 };
+  let h = start.h, m = start.m;
+  while (h < end.h || (h === end.h && m <= end.m)) {
+    const label = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    const opt = document.createElement('option');
+    opt.value = label;
+    opt.textContent = label;
+    select.appendChild(opt);
+    m += 15;
+    if (m >= 60) { m -= 60; h++; }
+  }
+}
+
+function renderMenu() {
+  document.getElementById('menuList').innerHTML = MENU.map(item => `
+    <div class="menu-item">
+      <div class="item-emoji">${item.emoji}</div>
+      <div class="item-info">
+        <div class="item-name">${item.name}</div>
+        <div class="item-price">¥${item.price.toLocaleString()}</div>
+      </div>
+      <div class="counter">
+        <button class="counter-btn minus" onclick="change('${item.id}', -1)">−</button>
+        <div class="counter-value" id="count-${item.id}">0</div>
+        <button class="counter-btn plus" onclick="change('${item.id}', +1)">＋</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function change(id, delta) {
+  counts[id] = Math.max(0, counts[id] + delta);
+  const el = document.getElementById('count-' + id);
+  el.textContent = counts[id];
+  el.className = 'counter-value' + (counts[id] > 0 ? ' active' : '');
+  updateSummary();
+}
+
+function updateSummary() {
+  const items = MENU.filter(m => counts[m.id] > 0);
+  const total = items.reduce((s, m) => s + m.price * counts[m.id], 0);
+  const summary = document.getElementById('orderSummary');
+  if (items.length === 0) { summary.classList.remove('visible'); return; }
+  summary.classList.add('visible');
+  document.getElementById('summaryItems').innerHTML = items.map(m => `
+    <div class="summary-row">
+      <span>${m.name} × ${counts[m.id]}</span>
+      <span>¥${(m.price * counts[m.id]).toLocaleString()}</span>
+    </div>
+  `).join('');
+  document.getElementById('summaryTotal').textContent = '¥' + total.toLocaleString();
+}
+
+async function submitOrder() {
+  const name = document.getElementById('nameInput').value.trim();
+  const pickupTime = document.getElementById('pickupTime').value;
+  const items = MENU.filter(m => counts[m.id] > 0);
+  document.getElementById('errorMsg').classList.remove('show');
+
+  if (!name) { showError('お名前を入力してください'); return; }
+  if (!pickupTime) { showError('ピックアップ時間を選んでください'); return; }
+  if (items.length === 0) { showError('商品を1つ以上選んでください'); return; }
+
+  const total = items.reduce((s, m) => s + m.price * counts[m.id], 0);
+  const payload = {
+    name,
+    pickupTime,
+    total,
+    items: items.map(m => ({
+      emoji: m.emoji,
+      name: m.name,
+      count: counts[m.id],
+      subtotal: (m.price * counts[m.id]).toLocaleString(),
+    })),
+  };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.classList.add('sending');
+
+  try {
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    showSuccess(name, pickupTime, items, total);
+  } catch (e) {
+    showError('通信エラーが発生しました。ネットワークを確認してください。');
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('sending');
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showSuccess(name, pickupTime, items, total) {
+  document.getElementById('successDetail').innerHTML =
+    `<span style="color:var(--accent);font-size:11px;letter-spacing:0.15em;">ORDER</span><br><br>` +
+    items.map(m => `${m.emoji} ${m.name} × ${counts[m.id]}`).join('<br>') +
+    `<br><br>` +
+    `<span style="color:var(--muted);font-size:12px;">合計 ¥${total.toLocaleString()}</span><br>` +
+    `<span style="color:var(--muted);font-size:12px;">🕐 ピックアップ ${pickupTime}｜${name} 様</span>`;
+  document.getElementById('successScreen').classList.add('show');
+}
+
+function resetOrder() {
+  MENU.forEach(m => counts[m.id] = 0);
+  document.getElementById('nameInput').value = '';
+  document.getElementById('pickupTime').value = '';
+  document.getElementById('errorMsg').classList.remove('show');
+  document.getElementById('successScreen').classList.remove('show');
+  renderMenu();
+  updateSummary();
+  window.scrollTo(0, 0);
+}
+
+renderMenu();
+buildTimeOptions();
+</script>
+</body>
+</html>
