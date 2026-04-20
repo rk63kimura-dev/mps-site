@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mother's Peace Sand — Order</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -89,9 +90,16 @@
     padding: 16px 4px; border-bottom: 1px solid var(--warm); gap: 12px;
   }
 
+  /* サブアイテム（追加・セット）の見た目 */
+  .menu-item.sub {
+    padding-left: 16px;
+    background: rgba(200,149,90,0.04);
+  }
+
   .item-emoji { font-size: 26px; width: 38px; text-align: center; flex-shrink: 0; }
   .item-info { flex: 1; min-width: 0; }
   .item-name { font-size: 14px; font-weight: 400; color: var(--dark); line-height: 1.4; }
+  .item-note { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .item-price {
     font-family: 'Cormorant Garamond', serif;
     font-size: 18px; font-weight: 400;
@@ -117,13 +125,16 @@
   .counter-value { width: 28px; text-align: center; font-size: 15px; color: var(--dark); }
   .counter-value.active { color: var(--accent); }
 
-  /* 名前・時間 共通カード */
   .input-card {
     padding: 16px 20px; background: white;
-    margin: 12px 16px; border-radius: 12px; border: 1px solid var(--warm);
+    margin: 12px 16px 0; border-radius: 12px; border: 1px solid var(--warm);
   }
 
-  .input-card + .input-card { margin-top: 0; }
+  .input-card.second {
+    margin-top: 0;
+    border-top: 1px solid var(--warm);
+    border-radius: 0 0 12px 12px;
+  }
 
   .field-label {
     font-size: 11px; letter-spacing: 0.2em; color: var(--muted);
@@ -139,43 +150,21 @@
   .name-input:focus { border-bottom-color: var(--accent); }
   .name-input::placeholder { color: var(--muted); font-size: 14px; }
 
-  /* ピックアップ時間 プルダウン */
-  .time-select-wrap {
-    position: relative;
-  }
+  .time-select-wrap { position: relative; }
 
   .time-select {
-    width: 100%;
-    border: none;
-    border-bottom: 1.5px solid var(--warm);
-    background: transparent;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 16px;
-    color: var(--dark);
-    padding: 4px 32px 8px 0;
-    outline: none;
-    appearance: none;
-    -webkit-appearance: none;
-    cursor: pointer;
-    transition: border-color 0.2s;
+    width: 100%; border: none; border-bottom: 1.5px solid var(--warm);
+    background: transparent; font-family: 'Noto Sans JP', sans-serif;
+    font-size: 16px; color: var(--dark); padding: 4px 32px 8px 0;
+    outline: none; appearance: none; -webkit-appearance: none;
+    cursor: pointer; transition: border-color 0.2s;
   }
 
   .time-select:focus { border-bottom-color: var(--accent); }
-
-  .time-select option[value=""] { color: var(--muted); }
-
-  .time-arrow {
-    position: absolute;
-    right: 4px;
-    top: 50%;
-    transform: translateY(-60%);
-    pointer-events: none;
-    color: var(--accent);
-    font-size: 12px;
-  }
+  .time-arrow { position: absolute; right: 4px; top: 50%; transform: translateY(-60%); pointer-events: none; color: var(--accent); font-size: 12px; }
 
   .order-summary {
-    margin: 0 16px 8px; padding: 12px 16px;
+    margin: 12px 16px 8px; padding: 12px 16px;
     background: rgba(200,149,90,0.08); border-radius: 10px;
     border: 1px dashed var(--light-accent); display: none;
   }
@@ -245,6 +234,16 @@
 
   .back-btn:active { background: var(--warm); }
 
+  .cancel-btn {
+    padding: 10px 28px; background: transparent;
+    border: 1.5px solid #c0392b; border-radius: 30px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px; color: #c0392b;
+    cursor: pointer; transition: all 0.2s;
+  }
+
+  .cancel-btn:active { background: #fef0f0; }
+
   .error-msg {
     margin: 8px 16px; padding: 10px 14px;
     background: #fef0f0; border: 1px solid #f5c0c0;
@@ -252,9 +251,34 @@
   }
 
   .error-msg.show { display: block; }
+
+  .init-screen {
+    position: fixed; inset: 0; background: var(--dark);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px; z-index: 200;
+  }
+
+  .init-screen.hide { display: none; }
+
+  .init-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px; font-weight: 300;
+    letter-spacing: 0.15em; color: var(--light-accent);
+  }
+
+  .init-spinner {
+    width: 24px; height: 24px;
+    border: 2px solid rgba(255,255,255,0.2); border-top-color: var(--light-accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
 </style>
 </head>
 <body>
+
+<div class="init-screen" id="initScreen">
+  <div class="init-logo">Mother's Peace Sand</div>
+  <div class="init-spinner"></div>
+</div>
 
 <header>
   <div class="brand-name">Mother's Peace Sand</div>
@@ -268,18 +292,23 @@
 <div class="section-label">Menu</div>
 <div class="menu-list" id="menuList"></div>
 
-<!-- お名前 -->
 <div class="input-card">
   <span class="field-label">お名前</span>
   <input class="name-input" id="nameInput" type="text" placeholder="例：田中" maxlength="20" />
 </div>
 
-<!-- ピックアップ時間 -->
-<div class="input-card" style="margin-top:0; border-top: none; border-radius: 0 0 12px 12px; border-top: 1px solid var(--warm);">
+<div class="input-card second">
+  <span class="field-label">📅 ピックアップ日付</span>
+  <div class="time-select-wrap" style="margin-bottom:14px;">
+    <select class="time-select" id="pickupDate" onchange="onDateChange()">
+      <option value="">日付を選んでください</option>
+    </select>
+    <span class="time-arrow">▼</span>
+  </div>
   <span class="field-label">🕐 ピックアップ時間</span>
   <div class="time-select-wrap">
-    <select class="time-select" id="pickupTime">
-      <option value="">時間を選んでください</option>
+    <select class="time-select" id="pickupTime" disabled>
+      <option value="">先に日付を選んでください</option>
     </select>
     <span class="time-arrow">▼</span>
   </div>
@@ -309,36 +338,89 @@
   <div class="success-msg">ご注文ありがとうございます。<br>準備できましたらお声がけします。</div>
   <div class="success-detail" id="successDetail"></div>
   <button class="back-btn" onclick="resetOrder()">新しい注文</button>
+  <button class="cancel-btn" id="cancelBtn" onclick="cancelOrder()" style="margin-top:12px;">この注文をキャンセルする</button>
 </div>
 
 <script>
+const LIFF_ID = '2009748384-YPMycy7M';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxqOv9ER6tSW6JEHeQKse1tyTAH7hEli_A1wkoc_oU77uuLcLBzcJUz9za_xwzvs3MtOw/exec';
 
 const MENU = [
-  { id: 'pork',        emoji: '🥩', name: 'プルドポークサンド',                  price: 500 },
-  { id: 'pork_cheese', emoji: '🧀', name: 'プルドポークサンド＋チーズ',         price: 600, sub: true },
-  { id: 'pork2',       emoji: '🥩', name: 'プルドポークサンド ダブル',           price: 800, sub: true },
-  { id: 'pork2_cheese',emoji: '🧀', name: 'プルドポークサンド ダブル＋チーズ',  price: 900, sub: true },
-  { id: 'chicken',     emoji: '🍋', name: 'ハーブチキン&キャロットラペサンド',   price: 650 },
-  ,
-
+  { id: 'pork',     emoji: '🥩', name: 'プルドポークサンド',                 price: 500 },
+  { id: 'pork_cheese', emoji: '🥩', name: 'プルドポークサンド＋チーズ',      price: 600, sub: true },
+  { id: 'pork2',    emoji: '🥩', name: 'プルドポークサンド ダブル',           price: 800, note: '中身2倍', sub: true },
+  { id: 'pork2_cheese', emoji: '🥩', name: 'プルドポークサンド ダブル＋チーズ', price: 900, sub: true },
+  { id: 'chicken',  emoji: '🍋', name: 'ハーブチキン＆キャロットラペサンド',  price: 650 },
 ];
 
 let counts = {};
+let lineUserId = null;
+let lineDisplayName = null;
+
 MENU.forEach(m => counts[m.id] = 0);
 
-// 7:15〜10:30まで15分刻みの時間を生成
-function buildTimeOptions() {
-  const select = document.getElementById('pickupTime');
-  const start = { h: 7, m: 15 };
-  const end   = { h: 10, m: 30 };
-  let h = start.h, m = start.m;
-  while (h < end.h || (h === end.h && m <= end.m)) {
+async function initLiff() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
+    }
+    const profile = await liff.getProfile();
+    lineUserId = profile.userId;
+    lineDisplayName = profile.displayName;
+    document.getElementById('nameInput').value = lineDisplayName;
+  } catch (e) {
+    console.warn('LIFF init failed:', e);
+  } finally {
+    document.getElementById('initScreen').classList.add('hide');
+  }
+}
+
+function buildDateOptions() {
+  const select = document.getElementById('pickupDate');
+  const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+  const today = new Date();
+  let count = 0;
+  let d = new Date(today);
+  while (count < 7) {
+    const dow = d.getDay();
+    if (dow >= 1 && dow <= 5) { // 月〜金のみ
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const label = `${mm}/${dd}（${dayNames[dow]}）`;
+      const value = `${d.getFullYear()}-${mm}-${dd}`;
+      const opt = document.createElement('option');
+      opt.value = value;
+      // 今日なら「今日」を付ける
+      if (d.toDateString() === today.toDateString()) {
+        opt.textContent = `今日 ${label}`;
+      } else {
+        opt.textContent = label;
+      }
+      select.appendChild(opt);
+      count++;
+    }
+    d.setDate(d.getDate() + 1);
+  }
+}
+
+function onDateChange() {
+  const dateVal = document.getElementById('pickupDate').value;
+  const timeSelect = document.getElementById('pickupTime');
+  timeSelect.innerHTML = '<option value="">時間を選んでください</option>';
+  if (!dateVal) {
+    timeSelect.disabled = true;
+    return;
+  }
+  timeSelect.disabled = false;
+  let h = 7, m = 15;
+  while (h < 10 || (h === 10 && m <= 30)) {
     const label = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
     const opt = document.createElement('option');
     opt.value = label;
     opt.textContent = label;
-    select.appendChild(opt);
+    timeSelect.appendChild(opt);
     m += 15;
     if (m >= 60) { m -= 60; h++; }
   }
@@ -346,10 +428,11 @@ function buildTimeOptions() {
 
 function renderMenu() {
   document.getElementById('menuList').innerHTML = MENU.map(item => `
-    <div class="menu-item">
+    <div class="menu-item${item.sub ? ' sub' : ''}">
       <div class="item-emoji">${item.emoji}</div>
       <div class="item-info">
         <div class="item-name">${item.name}</div>
+        ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
         <div class="item-price">¥${item.price.toLocaleString()}</div>
       </div>
       <div class="counter">
@@ -386,19 +469,20 @@ function updateSummary() {
 
 async function submitOrder() {
   const name = document.getElementById('nameInput').value.trim();
+  const pickupDate = document.getElementById('pickupDate').value;
+  const pickupDateLabel = document.getElementById('pickupDate').options[document.getElementById('pickupDate').selectedIndex]?.text || '';
   const pickupTime = document.getElementById('pickupTime').value;
   const items = MENU.filter(m => counts[m.id] > 0);
   document.getElementById('errorMsg').classList.remove('show');
 
   if (!name) { showError('お名前を入力してください'); return; }
+  if (!pickupDate) { showError('ピックアップ日付を選んでください'); return; }
   if (!pickupTime) { showError('ピックアップ時間を選んでください'); return; }
   if (items.length === 0) { showError('商品を1つ以上選んでください'); return; }
 
   const total = items.reduce((s, m) => s + m.price * counts[m.id], 0);
   const payload = {
-    name,
-    pickupTime,
-    total,
+    name, pickupTime: `${pickupDateLabel} ${pickupTime}`, total, lineUserId,
     items: items.map(m => ({
       emoji: m.emoji,
       name: m.name,
@@ -418,7 +502,7 @@ async function submitOrder() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    showSuccess(name, pickupTime, items, total);
+    showSuccess(name, `${pickupDateLabel} ${pickupTime}`, items, total);
   } catch (e) {
     showError('通信エラーが発生しました。ネットワークを確認してください。');
   } finally {
@@ -444,10 +528,53 @@ function showSuccess(name, pickupTime, items, total) {
   document.getElementById('successScreen').classList.add('show');
 }
 
+function cancelOrder() {
+  if (!confirm('この注文をキャンセルしますか？')) return;
+
+  const btn = document.getElementById('cancelBtn');
+  btn.textContent = '送信中…';
+  btn.disabled = true;
+
+  const detail = document.getElementById('successDetail').innerText;
+  const cancelMessage = `⚠️ キャンセル希望\n━━━━━━━━━━━━\n${detail}`;
+
+  const payload = {
+    name: lineDisplayName || '不明',
+    pickupTime: 'キャンセル',
+    total: 0,
+    lineUserId,
+    cancel: true,
+    cancelDetail: detail,
+    items: [],
+  };
+
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }).then(() => {
+    document.getElementById('successScreen').classList.remove('show');
+    document.getElementById('successScreen').innerHTML = `
+      <div class="success-icon">🙏</div>
+      <div class="success-title">Cancelled</div>
+      <div class="success-msg">キャンセルを受け付けました。<br>またのご利用をお待ちしております。</div>
+      <button class="back-btn" onclick="location.reload()">戻る</button>
+    `;
+    document.getElementById('successScreen').classList.add('show');
+  }).catch(() => {
+    alert('通信エラーが発生しました。LINE公式アカウントに直接ご連絡ください。');
+    btn.textContent = 'この注文をキャンセルする';
+    btn.disabled = false;
+  });
+}
+
 function resetOrder() {
   MENU.forEach(m => counts[m.id] = 0);
-  document.getElementById('nameInput').value = '';
-  document.getElementById('pickupTime').value = '';
+  document.getElementById('nameInput').value = lineDisplayName || '';
+  document.getElementById('pickupDate').value = '';
+  document.getElementById('pickupTime').innerHTML = '<option value="">先に日付を選んでください</option>';
+  document.getElementById('pickupTime').disabled = true;
   document.getElementById('errorMsg').classList.remove('show');
   document.getElementById('successScreen').classList.remove('show');
   renderMenu();
@@ -456,7 +583,8 @@ function resetOrder() {
 }
 
 renderMenu();
-buildTimeOptions();
+buildDateOptions();
+initLiff();
 </script>
 </body>
 </html>
