@@ -295,6 +295,7 @@
 <div class="input-card">
   <span class="field-label">お名前</span>
   <input class="name-input" id="nameInput" type="text" placeholder="例：田中" maxlength="20" />
+  <div style="font-size:12px;color:#8a7060;margin-top:12px;margin-bottom:4px;">電話番号</div>
   <input class="name-input" id="phoneInput" type="tel" placeholder="例：090-0000-0000" maxlength="15" />
 </div>
 
@@ -473,6 +474,7 @@ function updateSummary() {
 
 async function submitOrder() {
   const name = document.getElementById('nameInput').value.trim();
+  const phone = document.getElementById('phoneInput').value.trim();
   const pickupDate = document.getElementById('pickupDate').value;
   const pickupDateLabel = document.getElementById('pickupDate').options[document.getElementById('pickupDate').selectedIndex]?.text || '';
   const pickupTime = document.getElementById('pickupTime').value;
@@ -486,7 +488,7 @@ async function submitOrder() {
 
   const total = items.reduce((s, m) => s + m.price * counts[m.id], 0);
   const payload = {
-    name, pickupTime: `${pickupDateLabel} ${pickupTime}`, total, lineUserId,
+    name, phone, pickupTime: `${pickupDateLabel} ${pickupTime}`, total, lineUserId,
     items: items.map(m => ({
       emoji: m.emoji,
       name: m.name,
