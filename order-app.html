@@ -524,13 +524,30 @@ function showError(msg) {
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+function cancelOrder(name, pickupTime) {
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      cancel: true,
+      name: name,
+      cancelDetail: 'ピックアップ予定: ' + pickupTime
+    })
+  });
+  document.getElementById('successBox').innerHTML = '<p style="text-align:center;padding:20px;color:#8a7060;">キャンセルを受け付けました。</p>';
+}
+
 function showSuccess(name, pickupTime, items, total) {
   document.getElementById('successDetail').innerHTML =
     `<span style="color:var(--accent);font-size:11px;letter-spacing:0.15em;">ORDER</span><br><br>` +
     items.map(m => `${m.emoji} ${m.name} × ${counts[m.id]}`).join('<br>') +
     `<br><br>` +
     `<span style="color:var(--muted);font-size:12px;">合計 ¥${total.toLocaleString()}</span><br>` +
-    `<span style="color:var(--muted);font-size:12px;">🕐 ピックアップ ${pickupTime}｜${name} 様</span>`;
+    `<span style="color:var(--muted);font-size:12px;">🕐 ピックアップ ${pickupTime}｜${name} 様</span>
+    <br><br>
+    <button onclick="cancelOrder('${name}', '${pickupTime}')" style="background:none;border:1px solid #c0392b;color:#c0392b;padding:8px 20px;border-radius:20px;font-size:13px;cursor:pointer;margin-top:8px;">キャンセルする</button>`;
   document.getElementById('successScreen').classList.add('show');
 }
 
