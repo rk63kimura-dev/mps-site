@@ -529,9 +529,7 @@ function showSuccess(name, pickupTime, items, total) {
     items.map(m => `${m.emoji} ${m.name} × ${counts[m.id]}`).join('<br>') +
     `<br><br>` +
     `<span style="color:var(--muted);font-size:12px;">合計 ¥${total.toLocaleString()}</span><br>` +
-    `<span style="color:var(--muted);font-size:12px;">🕐 ピックアップ ${pickupTime}｜${name} 様</span>
-    <br><br>
-    `;
+    `<span style="color:var(--muted);font-size:12px;">🕐 ピックアップ ${pickupTime}｜${name} 様</span>`;
   document.getElementById('successScreen').classList.add('show');
 }
 
