@@ -524,36 +524,6 @@ function showError(msg) {
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-function cancelOrder(name, pickupTime) {
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
-  fetch(GAS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      cancel: true,
-      name: name,
-      cancelDetail: 'ピックアップ予定: ' + pickupTime
-    })
-  });
-  document.getElementById('successBox').innerHTML = '<p style="text-align:center;padding:20px;color:#8a7060;">キャンセルを受け付けました。</p>';
-}
-
-function cancelOrder(name, pickupTime) {
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
-  fetch(GAS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      cancel: true,
-      name: name,
-      cancelDetail: 'ピックアップ予定: ' + pickupTime
-    })
-  });
-  document.getElementById('successBox').innerHTML = '<p style="text-align:center;padding:20px;color:#8a7060;">キャンセルを受け付けました。</p>';
-}
-
 function showSuccess(name, pickupTime, items, total) {
   document.getElementById('successDetail').innerHTML =
     `<span style="color:var(--accent);font-size:11px;letter-spacing:0.15em;">ORDER</span><br><br>` +
