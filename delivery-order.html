@@ -942,6 +942,22 @@ function submitOrder() {
 
 }
 
+function cancelDelivery(date, time, company) {
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
+  if (!confirm('この注文をキャンセルしますか？')) return;
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      cancel: true,
+      name: company,
+      cancelDetail: '配達予定: ' + date + ' ' + time
+    })
+  });
+  document.getElementById('cancel-area').innerHTML = '<p style="text-align:center;padding:12px;color:#8a7060;">キャンセルを受け付けました。</p>';
+}
+
 function showSuccess(date, time, company) {
   document.querySelector('main').innerHTML = '';
   const s = document.createElement('div');
