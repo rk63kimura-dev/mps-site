@@ -672,6 +672,7 @@ const MENUS = {
 
 // ===== INIT =====
 window.onload = () => {
+  loadDeliveryInfo();
   initStock();
   initDates();
 };
@@ -685,7 +686,8 @@ function initStock() {
     document.getElementById('soldoutOverlay').classList.add('show');
     document.getElementById('menuSection').style.opacity = '0.4';
     document.getElementById('menuSection').style.pointerEvents = 'none';
-    document.getElementById('submitBtn').disabled = true;
+    saveDeliveryInfo();
+  document.getElementById('submitBtn').disabled = true;
   } else if (STOCK <= 5) {
     badge.textContent = '残りわずか';
     badge.className = 'stock-status-badge stock-low';
@@ -850,6 +852,29 @@ function getTotal() {
 }
 
 // ===== SUBMIT =====
+function saveDeliveryInfo() {
+  const info = {
+    company: document.getElementById('companyName').value,
+    building: document.getElementById('buildingInfo').value,
+    contact: document.getElementById('contactName').value,
+    phone: document.getElementById('phoneNum').value
+  };
+  localStorage.setItem('mps_delivery_info', JSON.stringify(info));
+}
+
+function loadDeliveryInfo() {
+  try {
+    const saved = localStorage.getItem('mps_delivery_info');
+    if (saved) {
+      const info = JSON.parse(saved);
+      document.getElementById('companyName').value = info.company || '';
+      document.getElementById('buildingInfo').value = info.building || '';
+      document.getElementById('contactName').value = info.contact || '';
+      document.getElementById('phoneNum').value = info.phone || '';
+    }
+  } catch(e) {}
+}
+
 function submitOrder() {
   // Validate
   if (getTotalQty() < 2) {
@@ -892,6 +917,7 @@ function submitOrder() {
   // Send to GAS (Google Apps Script)
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
 
+  saveDeliveryInfo();
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('submitBtn').textContent = '送信中...';
 
