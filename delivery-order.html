@@ -969,7 +969,8 @@ function showSuccess(date, time, company) {
       <strong>${company}</strong> 様<br><br>
       ${date} ${time} にお届けします。<br><br>
       ご不明な点はLINEにてお問い合わせください。<br><br>
-      <em style="color:#7a6a52; font-size:11px;">Mother's Peace Sandwich</em>
+      <em style="color:#7a6a52; font-size:11px;">Mother's Peace Sandwich</em><br><br>
+      <button id="cancelDeliveryBtn" onclick="cancelDelivery('${date}', '${time}', '${company}')" style="background:none;border:1px solid #c0392b;color:#c0392b;padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;">この注文をキャンセルする</button>
     </div>
   `;
   document.querySelector('main').appendChild(s);
