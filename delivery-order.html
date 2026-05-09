@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>デリバリー注文 | Mother's Peace Sandwich</title>
-
 <style>
   :root {
     --cream: #f5f0e8;
@@ -19,9 +18,7 @@
     --error: #c0392b;
     --success: #2d6a2d;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     background-color: var(--cream);
     color: var(--dark);
@@ -31,8 +28,6 @@
       radial-gradient(ellipse at 20% 0%, rgba(200,150,62,0.08) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 100%, rgba(45,74,45,0.08) 0%, transparent 60%);
   }
-
-  /* HEADER */
   header {
     background: var(--dark);
     padding: 20px 24px;
@@ -44,436 +39,74 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 10px,
-      rgba(200,150,62,0.04) 10px,
-      rgba(200,150,62,0.04) 20px
-    );
+    background: repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(200,150,62,0.04) 10px,rgba(200,150,62,0.04) 20px);
   }
-  .header-inner {
-    position: relative;
-    z-index: 1;
-  }
-  .brand-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 4px;
-  }
-  .badge-icon {
-    width: 44px;
-    height: 44px;
-    border: 2px solid var(--gold);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gold);
-    font-size: 18px;
-  }
-  .brand-name {
-    font-family: Georgia, 'Times New Roman', serif;
-    color: var(--gold);
-    font-size: 18px;
-    letter-spacing: 0.05em;
-  }
-  .page-title {
-    font-family: Georgia, 'Hiragino Mincho ProN', serif;
-    color: #fff;
-    font-size: 13px;
-    letter-spacing: 0.15em;
-    opacity: 0.7;
-    margin-top: 4px;
-  }
-
-  /* NOTICE BAR */
-  .notice-bar {
-    background: var(--green);
-    color: #fff;
-    text-align: center;
-    padding: 10px 16px;
-    font-size: 12px;
-    letter-spacing: 0.05em;
-    line-height: 1.6;
-  }
+  .header-inner { position: relative; z-index: 1; }
+  .brand-badge { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .badge-icon { width: 44px; height: 44px; border: 2px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 18px; }
+  .brand-name { font-family: Georgia, 'Times New Roman', serif; color: var(--gold); font-size: 18px; letter-spacing: 0.05em; }
+  .page-title { font-family: Georgia, 'Hiragino Mincho ProN', serif; color: #fff; font-size: 13px; letter-spacing: 0.15em; opacity: 0.7; margin-top: 4px; }
+  .notice-bar { background: var(--green); color: #fff; text-align: center; padding: 10px 16px; font-size: 12px; letter-spacing: 0.05em; line-height: 1.6; }
   .notice-bar strong { color: var(--gold-light); }
-
-  /* MAIN */
-  main {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 24px 16px 60px;
-  }
-
-  /* SECTION TITLES */
-  .section-title {
-    font-family: Georgia, 'Hiragino Mincho ProN', serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--brown);
-    letter-spacing: 0.1em;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-title::before {
-    content: '';
-    display: block;
-    width: 4px;
-    height: 16px;
-    background: var(--gold);
-    border-radius: 2px;
-  }
-
-  /* CARDS */
-  .card {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(26,20,16,0.06);
-  }
-
-  /* STOCK STATUS */
-  .stock-banner {
-    background: var(--dark);
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .stock-label {
-    color: rgba(255,255,255,0.6);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-  }
-  .stock-count {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 28px;
-    color: var(--gold);
-    line-height: 1;
-  }
-  .stock-unit {
-    color: rgba(255,255,255,0.5);
-    font-size: 11px;
-    margin-top: 2px;
-  }
-  .stock-status-badge {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-  }
+  main { max-width: 480px; margin: 0 auto; padding: 24px 16px 60px; }
+  .section-title { font-family: Georgia, 'Hiragino Mincho ProN', serif; font-size: 14px; font-weight: 600; color: var(--brown); letter-spacing: 0.1em; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; display: block; width: 4px; height: 16px; background: var(--gold); border-radius: 2px; }
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(26,20,16,0.06); }
+  .stock-banner { background: var(--dark); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+  .stock-label { color: rgba(255,255,255,0.6); font-size: 11px; letter-spacing: 0.1em; }
+  .stock-count { font-family: Georgia, 'Times New Roman', serif; font-size: 28px; color: var(--gold); line-height: 1; }
+  .stock-unit { color: rgba(255,255,255,0.5); font-size: 11px; margin-top: 2px; }
+  .stock-status-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; letter-spacing: 0.05em; }
   .stock-ok { background: rgba(45,106,45,0.3); color: #7dbb7d; }
   .stock-low { background: rgba(200,150,62,0.3); color: var(--gold-light); }
   .stock-out { background: rgba(192,57,43,0.3); color: #e88; }
-
-  /* MENU ITEMS */
-  .menu-item {
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: #fdfcf9;
-  }
+  .menu-item { border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; position: relative; display: flex; align-items: center; gap: 12px; background: #fdfcf9; }
   .menu-item:hover { border-color: var(--gold); background: #fffdf7; }
-  .menu-item.selected {
-    border-color: var(--green);
-    background: rgba(45,74,45,0.04);
-  }
-  .menu-item.disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-  .menu-checkbox {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--border);
-    border-radius: 4px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-  .menu-item.selected .menu-checkbox {
-    background: var(--green);
-    border-color: var(--green);
-    color: #fff;
-  }
+  .menu-item.selected { border-color: var(--green); background: rgba(45,74,45,0.04); }
+  .menu-item.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+  .menu-checkbox { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .menu-item.selected .menu-checkbox { background: var(--green); border-color: var(--green); color: #fff; }
   .menu-info { flex: 1; }
-  .menu-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--dark);
-    line-height: 1.4;
-    margin-bottom: 2px;
-  }
-  .menu-tag {
-    font-size: 10px;
-    color: var(--text-muted);
-    letter-spacing: 0.05em;
-  }
-  .menu-price {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 16px;
-    color: var(--brown);
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  /* QUANTITY */
-  .qty-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #f0ece4;
-  }
+  .menu-name { font-size: 13px; font-weight: 500; color: var(--dark); line-height: 1.4; margin-bottom: 2px; }
+  .menu-tag { font-size: 10px; color: var(--text-muted); letter-spacing: 0.05em; }
+  .menu-price { font-family: Georgia, 'Times New Roman', serif; font-size: 16px; color: var(--brown); font-weight: 600; flex-shrink: 0; }
+  .qty-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0ece4; }
   .qty-row:last-child { border-bottom: none; }
-  .qty-item-name {
-    font-size: 12px;
-    color: var(--dark);
-    flex: 1;
-  }
-  .qty-controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .qty-btn {
-    width: 32px;
-    height: 32px;
-    border: 1.5px solid var(--border);
-    border-radius: 50%;
-    background: #fff;
-    color: var(--brown);
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    line-height: 1;
-  }
+  .qty-item-name { font-size: 12px; color: var(--dark); flex: 1; }
+  .qty-controls { display: flex; align-items: center; gap: 12px; }
+  .qty-btn { width: 32px; height: 32px; border: 1.5px solid var(--border); border-radius: 50%; background: #fff; color: var(--brown); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; line-height: 1; }
   .qty-btn:hover { border-color: var(--gold); color: var(--gold); }
-  .qty-num {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 20px;
-    color: var(--dark);
-    min-width: 28px;
-    text-align: center;
-  }
-
-  /* FORM INPUTS */
+  .qty-num { font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: var(--dark); min-width: 28px; text-align: center; }
   .form-group { margin-bottom: 14px; }
-  label {
-    display: block;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
-  label .required {
-    color: var(--error);
-    margin-left: 4px;
-  }
-  input, select, textarea {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif;
-    font-size: 14px;
-    color: var(--dark);
-    background: #fdfcf9;
-    transition: border-color 0.2s;
-    appearance: none;
-  }
-  input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: var(--green);
-    background: #fff;
-  }
-  select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6a52' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    padding-right: 36px;
-  }
+  label { display: block; font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+  label .required { color: var(--error); margin-left: 4px; }
+  input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif; font-size: 14px; color: var(--dark); background: #fdfcf9; transition: border-color 0.2s; appearance: none; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); background: #fff; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6a52' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-  /* ORDER SUMMARY */
-  .summary-box {
-    background: var(--dark);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-  .summary-title {
-    font-family: Georgia, 'Hiragino Mincho ProN', serif;
-    color: rgba(255,255,255,0.5);
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    margin-bottom: 14px;
-  }
-  .summary-line {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
+  .summary-box { background: var(--dark); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .summary-title { font-family: Georgia, 'Hiragino Mincho ProN', serif; color: rgba(255,255,255,0.5); font-size: 11px; letter-spacing: 0.15em; margin-bottom: 14px; }
+  .summary-line { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
   .summary-line:last-child { border-bottom: none; }
   .summary-item-name { color: rgba(255,255,255,0.7); font-size: 13px; }
   .summary-item-price { color: var(--gold-light); font-size: 13px; font-family: Georgia, 'Times New Roman', serif; }
-  .summary-total {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 14px;
-    margin-top: 8px;
-    border-top: 1px solid rgba(200,150,62,0.3);
-  }
+  .summary-total { display: flex; justify-content: space-between; align-items: center; padding-top: 14px; margin-top: 8px; border-top: 1px solid rgba(200,150,62,0.3); }
   .summary-total-label { color: rgba(255,255,255,0.5); font-size: 12px; letter-spacing: 0.1em; }
-  .summary-total-price {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 26px;
-    color: var(--gold);
-  }
-
-  /* MINIMUM WARNING */
-  .min-warning {
-    background: rgba(200,150,62,0.12);
-    border: 1px solid rgba(200,150,62,0.3);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: #8b6914;
-    margin-bottom: 14px;
-    display: none;
-  }
+  .summary-total-price { font-family: Georgia, 'Times New Roman', serif; font-size: 26px; color: var(--gold); }
+  .min-warning { background: rgba(200,150,62,0.12); border: 1px solid rgba(200,150,62,0.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #8b6914; margin-bottom: 14px; display: none; }
   .min-warning.show { display: block; }
-
-  /* SUBMIT BUTTON */
-  .submit-btn {
-    width: 100%;
-    padding: 18px;
-    background: var(--green);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-family: Georgia, 'Hiragino Mincho ProN', serif;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: all 0.25s;
-    position: relative;
-    overflow: hidden;
-  }
+  .submit-btn { width: 100%; padding: 18px; background: var(--green); color: #fff; border: none; border-radius: 12px; font-family: Georgia, 'Hiragino Mincho ProN', serif; font-size: 15px; font-weight: 600; letter-spacing: 0.1em; cursor: pointer; transition: all 0.25s; }
   .submit-btn:hover { background: var(--green-light); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(45,74,45,0.3); }
-  .submit-btn:active { transform: translateY(0); }
   .submit-btn:disabled { background: #bbb; cursor: not-allowed; transform: none; box-shadow: none; }
-
-  /* DEADLINE NOTE */
-  .deadline-note {
-    text-align: center;
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 12px;
-    letter-spacing: 0.05em;
-    line-height: 1.7;
-  }
-
-  /* SUCCESS STATE */
-  .success-screen {
-    display: none;
-    text-align: center;
-    padding: 40px 20px;
-  }
-  .success-screen.show { display: block; }
-  .success-icon {
-    width: 72px;
-    height: 72px;
-    background: var(--green);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    color: #fff;
-    font-size: 32px;
-  }
-  .success-title {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 22px;
-    color: var(--dark);
-    margin-bottom: 8px;
-  }
-  .success-body {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.8;
-  }
-
-  /* ERROR MSG */
-  .error-msg {
-    color: var(--error);
-    font-size: 11px;
-    margin-top: 4px;
-    display: none;
-  }
-  .error-msg.show { display: block; }
-
-  /* SOLDOUT OVERLAY */
-  .soldout-overlay {
-    display: none;
-    background: rgba(192,57,43,0.06);
-    border: 1.5px solid rgba(192,57,43,0.2);
-    border-radius: 10px;
-    padding: 16px;
-    text-align: center;
-    margin-bottom: 16px;
-  }
+  .deadline-note { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 12px; letter-spacing: 0.05em; line-height: 1.7; }
+  .soldout-overlay { display: none; background: rgba(192,57,43,0.06); border: 1.5px solid rgba(192,57,43,0.2); border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 16px; }
   .soldout-overlay.show { display: block; }
   .soldout-text { color: var(--error); font-size: 13px; font-weight: 500; }
-
-  /* CLOSED MSG */
-  .closed-msg {
-    background: rgba(90,60,20,0.08);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 16px;
-    display: none;
-  }
-  .closed-msg.show { display: block; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .slot-full { color: var(--text-muted); font-size: 10px; margin-left: 4px; }
+  .error-msg { color: var(--error); font-size: 11px; margin-top: 4px; display: none; }
+  .error-msg.show { display: block; }
+  .loading-msg { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   .card, .stock-banner { animation: fadeIn 0.4s ease both; }
 </style>
 </head>
@@ -494,170 +127,16 @@
   前日20:00までにご注文ください　2個以上から承ります<br>朝仕込み・ランチお届け｜お届け時は常温〜冷蔵状態となります
 </div>
 
-<main>
-
-  <!-- STOCK -->
-  <div class="stock-banner" id="stockBanner">
-    <div>
-      <div class="stock-label">本日の残り在庫</div>
-      <div class="stock-count" id="stockNum">12</div>
-      <div class="stock-unit">個</div>
-    </div>
-    <div class="stock-status-badge stock-ok" id="stockBadge">受付中</div>
-  </div>
-
-  <div class="soldout-overlay" id="soldoutOverlay">
-    <div class="soldout-text">⚠ 本日の在庫は終了しました</div>
-  </div>
-
-  <!-- MENU -->
-  <div class="section-title">メニューを選んでください</div>
-
-  <div id="menuSection">
-    <div class="menu-item" data-id="pp" data-price="500" onclick="toggleMenu(this)">
-      <div class="menu-checkbox">✓</div>
-      <div class="menu-info">
-        <div class="menu-name">プルドポークサンド</div>
-        <div class="menu-tag">牧場ソース・ピクルスオニオン</div>
-      </div>
-      <div class="menu-price">¥500</div>
-    </div>
-    <div class="menu-item" data-id="ppc" data-price="600" onclick="toggleMenu(this)">
-      <div class="menu-checkbox">✓</div>
-      <div class="menu-info">
-        <div class="menu-name">プルドポークサンド＋チーズ</div>
-        <div class="menu-tag">チェダーチーズ追加</div>
-      </div>
-      <div class="menu-price">¥600</div>
-    </div>
-    <div class="menu-item" data-id="ppd" data-price="800" onclick="toggleMenu(this)">
-      <div class="menu-checkbox">✓</div>
-      <div class="menu-info">
-        <div class="menu-name">プルドポークサンド ダブル</div>
-        <div class="menu-tag">中身2倍</div>
-      </div>
-      <div class="menu-price">¥800</div>
-    </div>
-    <div class="menu-item" data-id="ppdc" data-price="900" onclick="toggleMenu(this)">
-      <div class="menu-checkbox">✓</div>
-      <div class="menu-info">
-        <div class="menu-name">プルドポークサンド ダブル＋チーズ</div>
-        <div class="menu-tag">中身2倍・チェダーチーズ追加</div>
-      </div>
-      <div class="menu-price">¥900</div>
-    </div>
-    <div class="menu-item" data-id="hc" data-price="650" onclick="toggleMenu(this)">
-      <div class="menu-checkbox">✓</div>
-      <div class="menu-info">
-        <div class="menu-name">スモークサーモンとクリームチーズのサンド</div>
-        <div class="menu-tag">スモークサーモン・クリームチーズ</div>
-      </div>
-      <div class="menu-price">¥650</div>
-    </div>
-  </div>
-
-  <!-- QUANTITY -->
-  <div class="card" id="qtyCard" style="display:none;">
-    <div class="section-title">個数を選んでください</div>
-    <div id="qtyRows"></div>
-  </div>
-
-  <!-- MIN WARNING -->
-  <div class="min-warning" id="minWarning">
-    ⚠ 2個以上からご注文いただけます
-  </div>
-
-  <!-- ORDER SUMMARY -->
-  <div class="summary-box" id="summaryBox" style="display:none;">
-    <div class="summary-title">ORDER SUMMARY</div>
-    <div id="summaryLines"></div>
-    <div class="summary-total">
-      <div class="summary-total-label">合計金額</div>
-      <div class="summary-total-price" id="totalPrice">¥0</div>
-    </div>
-  </div>
-
-  <!-- DATE & TIME -->
-  <div class="card">
-    <div class="section-title">配達日時</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>配達日 <span class="required">*</span></label>
-        <select id="deliveryDate"></select>
-      </div>
-      <div class="form-group">
-        <label>配達時間 <span class="required">*</span></label>
-        <select id="deliveryTime">
-          <option value="">選択してください</option>
-          <option>11:00</option>
-          <option>11:15</option>
-          <option>11:30</option>
-          <option>11:45</option>
-          <option>12:00</option>
-          <option>12:15</option>
-          <option>12:30</option>
-          <option>12:45</option>
-          <option>13:00</option>
-        </select>
-      </div>
-    </div>
-    <div class="closed-msg" id="closedMsg">
-      本日の受付は終了しました（前日20:00まで）
-    </div>
-  </div>
-
-  <!-- DELIVERY INFO -->
-  <div class="card">
-    <div class="section-title">お届け先情報</div>
-    <div class="form-group">
-      <label>会社名・店舗名等 <span class="required">*</span></label>
-      <input type="text" id="companyName" placeholder="〇〇会社">
-    </div>
-    <div class="form-group">
-      <label>住所・ビル名・フロアなど <span class="required">*</span></label>
-      <input type="text" id="buildingInfo" placeholder="〇〇ビル 3F">
-    </div>
-    <div class="form-group">
-      <label>担当者名 <span class="required">*</span></label>
-      <input type="text" id="contactName" placeholder="山田 太郎">
-    </div>
-    <div class="form-group">
-      <label>電話番号 <span class="required">*</span></label>
-      <input type="tel" id="phoneNum" placeholder="090-0000-0000">
-      <div class="error-msg" id="phoneError">正しい電話番号を入力してください</div>
-    </div>
-  </div>
-
-  <!-- SUBMIT -->
-  <div class="summary-box" id="finalSummary" style="display:none;">
-    <div class="summary-title">注文内容の確認</div>
-    <div id="finalLines"></div>
-    <div class="summary-total">
-      <div class="summary-total-label">お支払い合計</div>
-      <div class="summary-total-price" id="finalTotal">¥0</div>
-    </div>
-  </div>
-
-  <button class="submit-btn" id="submitBtn" onclick="submitOrder()">
-    注文を確定する
-  </button>
-  <div class="deadline-note">
-    ご注文は前日20:00まで受け付けています<br>
-    当日キャンセルはご遠慮ください
-  </div>
-
-  <!-- SUCCESS -->
-  <div class="success-screen" id="successScreen">
-    <div class="success-icon">✓</div>
-    <div class="success-title">ご注文ありがとうございます</div>
-    <div class="success-body" id="successBody"></div>
-  </div>
-
+<main id="mainContent">
+  <div class="loading-msg">読み込み中...</div>
 </main>
 
 <script>
-// ===== STATE =====
-const STOCK = 12; // ← ここを毎日手動で変更
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
+
+let STOCK = 0;
+let SLOTS = [];
+let TOWNS = [];
 let selectedMenus = {};
 let quantities = {};
 
@@ -667,45 +146,153 @@ const MENUS = {
   ppd:  { name: 'プルドポークサンド ダブル', price: 800 },
   ppdc: { name: 'プルドポークサンド ダブル＋チーズ', price: 900 },
   hc:   { name: 'スモークサーモンとクリームチーズのサンド', price: 650 },
-
 };
 
 // ===== INIT =====
-window.onload = () => {
-  loadDeliveryInfo();
-  initStock();
-  initDates();
+window.onload = async () => {
+  try {
+    const res = await fetch(GAS_URL);
+    const data = await res.json();
+    STOCK = data.stock || 0;
+    SLOTS = data.slots || [];
+    TOWNS = data.towns || [];
+  } catch(e) {
+    STOCK = 20;
+    SLOTS = [];
+    TOWNS = ['三宮町','元町通','北長狭通','下山手通','中山手通','加納町','京町','江戸町','東町','伊藤町','浪花町','播磨町','明石町','西町','前町','海岸通','栄町通'];
+  }
+  renderPage();
 };
 
-function initStock() {
-  document.getElementById('stockNum').textContent = STOCK;
-  const badge = document.getElementById('stockBadge');
-  if (STOCK === 0) {
-    badge.textContent = '売り切れ';
-    badge.className = 'stock-status-badge stock-out';
-    document.getElementById('soldoutOverlay').classList.add('show');
-    document.getElementById('menuSection').style.opacity = '0.4';
-    document.getElementById('menuSection').style.pointerEvents = 'none';
-    saveDeliveryInfo();
-  document.getElementById('submitBtn').disabled = true;
-  } else if (STOCK <= 5) {
-    badge.textContent = '残りわずか';
-    badge.className = 'stock-status-badge stock-low';
-  }
+function renderPage() {
+  const main = document.getElementById('mainContent');
+  main.innerHTML = `
+    <!-- STOCK -->
+    <div class="stock-banner" id="stockBanner">
+      <div>
+        <div class="stock-label">本日の残り在庫</div>
+        <div class="stock-count" id="stockNum">${STOCK}</div>
+        <div class="stock-unit">個</div>
+      </div>
+      <div class="stock-status-badge ${STOCK === 0 ? 'stock-out' : STOCK <= 5 ? 'stock-low' : 'stock-ok'}" id="stockBadge">
+        ${STOCK === 0 ? '売り切れ' : STOCK <= 5 ? '残りわずか' : '受付中'}
+      </div>
+    </div>
+
+    ${STOCK === 0 ? '<div class="soldout-overlay show"><div class="soldout-text">⚠ 本日の在庫は終了しました</div></div>' : ''}
+
+    <!-- MENU -->
+    <div class="section-title">メニューを選んでください</div>
+    <div id="menuSection" ${STOCK === 0 ? 'style="opacity:0.4;pointer-events:none;"' : ''}>
+      ${Object.entries(MENUS).map(([id, m]) => `
+        <div class="menu-item" data-id="${id}" data-price="${m.price}" onclick="toggleMenu(this)">
+          <div class="menu-checkbox">✓</div>
+          <div class="menu-info">
+            <div class="menu-name">${m.name}</div>
+          </div>
+          <div class="menu-price">¥${m.price}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- QUANTITY -->
+    <div class="card" id="qtyCard" style="display:none;">
+      <div class="section-title">個数を選んでください</div>
+      <div id="qtyRows"></div>
+    </div>
+
+    <div class="min-warning" id="minWarning">⚠ 2個以上からご注文いただけます</div>
+
+    <!-- SUMMARY -->
+    <div class="summary-box" id="summaryBox" style="display:none;">
+      <div class="summary-title">ORDER SUMMARY</div>
+      <div id="summaryLines"></div>
+      <div class="summary-total">
+        <div class="summary-total-label">合計金額</div>
+        <div class="summary-total-price" id="totalPrice">¥0</div>
+      </div>
+    </div>
+
+    <!-- DATE & TIME -->
+    <div class="card">
+      <div class="section-title">配達日時</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>配達日 <span class="required">*</span></label>
+          <select id="deliveryDate"></select>
+        </div>
+        <div class="form-group">
+          <label>配達時間 <span class="required">*</span></label>
+          <select id="deliveryTime">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELIVERY INFO -->
+    <div class="card">
+      <div class="section-title">お届け先情報</div>
+      <div class="form-group">
+        <label>会社名・店舗名等 <span class="required">*</span></label>
+        <input type="text" id="companyName" placeholder="〇〇会社">
+      </div>
+      <div class="form-group">
+        <label>町名 <span class="required">*</span></label>
+        <select id="townSelect">
+          <option value="">選択してください</option>
+          ${TOWNS.map(t => `<option value="${t}">${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ビル名・フロアなど <span class="required">*</span></label>
+        <input type="text" id="buildingInfo" placeholder="〇〇ビル 3F">
+      </div>
+      <div class="form-group">
+        <label>担当者名 <span class="required">*</span></label>
+        <input type="text" id="contactName" placeholder="山田 太郎">
+      </div>
+      <div class="form-group">
+        <label>電話番号 <span class="required">*</span></label>
+        <input type="tel" id="phoneNum" placeholder="090-0000-0000">
+        <div class="error-msg" id="phoneError">正しい電話番号を入力してください</div>
+      </div>
+    </div>
+
+    <!-- FINAL SUMMARY -->
+    <div class="summary-box" id="finalSummary" style="display:none;">
+      <div class="summary-title">注文内容の確認</div>
+      <div id="finalLines"></div>
+      <div class="summary-total">
+        <div class="summary-total-label">お支払い合計</div>
+        <div class="summary-total-price" id="finalTotal">¥0</div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitOrder()">注文を確定する</button>
+    <div class="deadline-note">ご注文は前日20:00まで受け付けています<br>当日キャンセルはご遠慮ください</div>
+  `;
+
+  initDates();
+  initTimeSlots();
+  loadDeliveryInfo();
 }
 
 function initDates() {
   const sel = document.getElementById('deliveryDate');
   const today = new Date();
   const dayNames = ['日','月','火','水','木','金','土'];
-  
-  // Generate next 5 weekdays
   let added = 0;
   let d = new Date(today);
-  
-  // Check if past 20:00 today
   const isPastCutoff = today.getHours() >= 20;
   if (isPastCutoff) d.setDate(d.getDate() + 1);
+
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = '日付を選択';
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  sel.appendChild(placeholder);
 
   while (added < 7) {
     d.setDate(d.getDate() + 1);
@@ -718,16 +305,23 @@ function initDates() {
     sel.appendChild(opt);
     added++;
   }
-
-  const placeholder = document.createElement('option');
-  placeholder.value = '';
-  placeholder.textContent = '日付を選択';
-  placeholder.disabled = true;
-  placeholder.selected = true;
-  sel.insertBefore(placeholder, sel.firstChild);
 }
 
-// ===== MENU TOGGLE =====
+function initTimeSlots() {
+  const sel = document.getElementById('deliveryTime');
+  const times = ['11:00','11:15','11:30','11:45','12:00','12:15','12:30','12:45','13:00'];
+  times.forEach(t => {
+    const slot = SLOTS.find(s => s.time === t);
+    const isFull = slot && !slot.available;
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = isFull ? `${t}（満枠）` : t;
+    if (isFull) opt.disabled = true;
+    sel.appendChild(opt);
+  });
+}
+
+// ===== MENU =====
 function toggleMenu(el) {
   const id = el.dataset.id;
   if (selectedMenus[id]) {
@@ -743,19 +337,13 @@ function toggleMenu(el) {
   renderSummary();
 }
 
-// ===== QUANTITY =====
 function renderQty() {
   const keys = Object.keys(selectedMenus);
   const card = document.getElementById('qtyCard');
   const rows = document.getElementById('qtyRows');
-  
-  if (keys.length === 0) {
-    card.style.display = 'none';
-    return;
-  }
+  if (keys.length === 0) { card.style.display = 'none'; return; }
   card.style.display = 'block';
   rows.innerHTML = '';
-  
   keys.forEach(id => {
     const m = MENUS[id];
     const row = document.createElement('div');
@@ -766,8 +354,7 @@ function renderQty() {
         <button class="qty-btn" onclick="changeQty('${id}',-1)">−</button>
         <div class="qty-num" id="qty-${id}">${quantities[id]}</div>
         <button class="qty-btn" onclick="changeQty('${id}',1)">＋</button>
-      </div>
-    `;
+      </div>`;
     rows.appendChild(row);
   });
 }
@@ -787,7 +374,6 @@ function changeQty(id, delta) {
   renderSummary();
 }
 
-// ===== SUMMARY =====
 function renderSummary() {
   const box = document.getElementById('summaryBox');
   const lines = document.getElementById('summaryLines');
@@ -796,7 +382,6 @@ function renderSummary() {
   const finalBox = document.getElementById('finalSummary');
   const finalLines = document.getElementById('finalLines');
   const finalTotal = document.getElementById('finalTotal');
-
   const keys = Object.keys(quantities);
   if (keys.length === 0) {
     box.style.display = 'none';
@@ -804,176 +389,112 @@ function renderSummary() {
     warning.classList.remove('show');
     return;
   }
-
-  let total = 0;
-  let totalQty = 0;
-  let linesHTML = '';
-  let finalHTML = '';
-
+  let total = 0, totalQty = 0, linesHTML = '', finalHTML = '';
   keys.forEach(id => {
-    const m = MENUS[id];
-    const q = quantities[id];
-    const subtotal = m.price * q;
-    total += subtotal;
-    totalQty += q;
-    linesHTML += `<div class="summary-line">
-      <div class="summary-item-name">${m.name} × ${q}</div>
-      <div class="summary-item-price">¥${subtotal.toLocaleString()}</div>
-    </div>`;
-    finalHTML += `<div class="summary-line">
-      <div class="summary-item-name">${m.name} × ${q}</div>
-      <div class="summary-item-price">¥${subtotal.toLocaleString()}</div>
-    </div>`;
+    const m = MENUS[id]; const q = quantities[id]; const sub = m.price * q;
+    total += sub; totalQty += q;
+    const line = `<div class="summary-line"><div class="summary-item-name">${m.name} × ${q}</div><div class="summary-item-price">¥${sub.toLocaleString()}</div></div>`;
+    linesHTML += line; finalHTML += line;
   });
-
   box.style.display = 'block';
   lines.innerHTML = linesHTML;
   totalEl.textContent = '¥' + total.toLocaleString();
-
   finalBox.style.display = 'block';
   finalLines.innerHTML = finalHTML;
   finalTotal.textContent = '¥' + total.toLocaleString();
-
-  if (totalQty < 2) {
-    warning.classList.add('show');
-  } else {
-    warning.classList.remove('show');
-  }
+  warning.classList.toggle('show', totalQty < 2);
 }
 
-function getTotalQty() {
-  return Object.values(quantities).reduce((a,b) => a+b, 0);
-}
+function getTotalQty() { return Object.values(quantities).reduce((a,b) => a+b, 0); }
+function getTotal() { return Object.keys(quantities).reduce((sum,id) => sum + MENUS[id].price * quantities[id], 0); }
 
-function getTotal() {
-  return Object.keys(quantities).reduce((sum, id) => {
-    return sum + MENUS[id].price * quantities[id];
-  }, 0);
-}
-
-// ===== SUBMIT =====
 function saveDeliveryInfo() {
-  const info = {
-    company: document.getElementById('companyName').value,
-    building: document.getElementById('buildingInfo').value,
-    contact: document.getElementById('contactName').value,
-    phone: document.getElementById('phoneNum').value
-  };
-  localStorage.setItem('mps_delivery_info', JSON.stringify(info));
+  try {
+    localStorage.setItem('mps_delivery_info', JSON.stringify({
+      company: document.getElementById('companyName').value,
+      town: document.getElementById('townSelect').value,
+      building: document.getElementById('buildingInfo').value,
+      contact: document.getElementById('contactName').value,
+      phone: document.getElementById('phoneNum').value
+    }));
+  } catch(e) {}
 }
 
 function loadDeliveryInfo() {
   try {
-    const saved = localStorage.getItem('mps_delivery_info');
+    const saved = JSON.parse(localStorage.getItem('mps_delivery_info'));
     if (saved) {
-      const info = JSON.parse(saved);
-      document.getElementById('companyName').value = info.company || '';
-      document.getElementById('buildingInfo').value = info.building || '';
-      document.getElementById('contactName').value = info.contact || '';
-      document.getElementById('phoneNum').value = info.phone || '';
+      document.getElementById('companyName').value = saved.company || '';
+      document.getElementById('townSelect').value = saved.town || '';
+      document.getElementById('buildingInfo').value = saved.building || '';
+      document.getElementById('contactName').value = saved.contact || '';
+      document.getElementById('phoneNum').value = saved.phone || '';
     }
   } catch(e) {}
 }
 
 function submitOrder() {
-  // Validate
-  if (getTotalQty() < 2) {
-    document.getElementById('minWarning').classList.add('show');
-    return;
-  }
+  if (getTotalQty() < 2) { document.getElementById('minWarning').classList.add('show'); return; }
   const date = document.getElementById('deliveryDate').value;
   const time = document.getElementById('deliveryTime').value;
   const company = document.getElementById('companyName').value.trim();
+  const town = document.getElementById('townSelect').value;
   const building = document.getElementById('buildingInfo').value.trim();
   const contact = document.getElementById('contactName').value.trim();
   const phone = document.getElementById('phoneNum').value.trim();
-
-  if (!date || !time || !company || !building || !contact || !phone) {
+  if (!date || !time || !company || !town || !building || !contact || !phone) {
     alert('すべての必須項目を入力してください');
     return;
   }
-
   const phoneRegex = /^[0-9\-\+\(\)\s]{10,15}$/;
-  const phoneError = document.getElementById('phoneError');
-  if (!phoneRegex.test(phone)) {
-    phoneError.classList.add('show');
-    return;
-  }
-  phoneError.classList.remove('show');
-
-  // Build order text for LINE notification
-  let orderText = `【デリバリー注文】\n`;
-  orderText += `日時: ${date} ${time}\n`;
-  orderText += `会社: ${company}\n`;
-  orderText += `場所: ${building}\n`;
-  orderText += `担当: ${contact}\n`;
-  orderText += `電話: ${phone}\n`;
-  orderText += `---\n`;
-  Object.keys(quantities).forEach(id => {
-    orderText += `${MENUS[id].name} × ${quantities[id]}\n`;
-  });
-  orderText += `合計: ¥${getTotal().toLocaleString()}`;
-
-  // Send to GAS (Google Apps Script)
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
-
+  if (!phoneRegex.test(phone)) { document.getElementById('phoneError').classList.add('show'); return; }
+  document.getElementById('phoneError').classList.remove('show');
   saveDeliveryInfo();
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('submitBtn').textContent = '送信中...';
-
   fetch(GAS_URL, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       type: 'delivery',
-      date, time, company, building, contact, phone,
-      items: Object.keys(quantities).map(id => ({
-        name: MENUS[id].name,
-        qty: quantities[id],
-        price: MENUS[id].price
-      })),
-      total: getTotal(),
-      text: orderText
+      date, time,
+      company, building: `${town} ${building}`, contact, phone,
+      items: Object.keys(quantities).map(id => ({ name: MENUS[id].name, qty: quantities[id], price: MENUS[id].price })),
+      total: getTotal()
     })
   })
   .then(() => showSuccess(date, time, company))
-  .catch(() => showSuccess(date, time, company)); // no-corsなのでエラー扱いしない
-
+  .catch(() => showSuccess(date, time, company));
 }
 
 function cancelDelivery(date, time, company) {
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
   if (!confirm('この注文をキャンセルしますか？')) return;
   fetch(GAS_URL, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      cancel: true,
-      name: company,
-      cancelDetail: '配達予定: ' + date + ' ' + time
-    })
+    body: JSON.stringify({ cancel: true, name: company, cancelDetail: '配達予定: ' + date + ' ' + time })
   });
   document.getElementById('cancel-area').innerHTML = '<p style="text-align:center;padding:12px;color:#8a7060;">キャンセルを受け付けました。</p>';
 }
 
 function showSuccess(date, time, company) {
-  document.querySelector('main').innerHTML = '';
-  const s = document.createElement('div');
-  s.className = 'success-screen show';
-  s.innerHTML = `
-    <div class="success-icon">✓</div>
-    <div class="success-title">ご注文ありがとうございます</div>
-    <div class="success-body">
-      <strong>${company}</strong> 様<br><br>
-      ${date} ${time} にお届けします。<br><br>
-      お届け時は常温〜冷蔵状態となります。お早めにお召し上がりください。<br><br>ご不明な点はLINEにてお問い合わせください。<br><br>
-      <em style="color:#7a6a52; font-size:11px;">Mother's Peace Sandwich</em><br><br>
-      <button id="cancelDeliveryBtn" onclick="cancelDelivery('${date}', '${time}', '${company}')" style="background:none;border:1px solid #c0392b;color:#c0392b;padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;">この注文をキャンセルする</button>
-    </div>
-  `;
-  document.querySelector('main').appendChild(s);
+  document.getElementById('mainContent').innerHTML = `
+    <div style="text-align:center;padding:40px 20px;">
+      <div style="width:72px;height:72px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:#fff;font-size:32px;">✓</div>
+      <div style="font-family:Georgia,serif;font-size:22px;color:var(--dark);margin-bottom:8px;">ご注文ありがとうございます</div>
+      <div style="font-size:13px;color:var(--text-muted);line-height:1.8;">
+        <strong>${company}</strong> 様<br><br>
+        ${date} ${time} にお届けします。<br><br>
+        お届け時は常温〜冷蔵状態となります。お早めにお召し上がりください。<br><br>
+        ご不明な点はLINEにてお問い合わせください。<br><br>
+        <em style="color:#7a6a52;font-size:11px;">Mother's Peace Sandwich</em>
+      </div>
+      <div id="cancel-area" style="margin-top:24px;">
+        <button onclick="cancelDelivery('${date}','${time}','${company}')" style="background:none;border:1px solid #c0392b;color:#c0392b;padding:10px 24px;border-radius:20px;font-size:13px;cursor:pointer;">この注文をキャンセルする</button>
+      </div>
+    </div>`;
 }
 </script>
 </body>
