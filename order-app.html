@@ -389,7 +389,9 @@ async function initLiff() {
   } finally {
     document.getElementById('initScreen').classList.add('hide');
   }
-  // 朝の在庫をGASから取得
+}
+
+async function loadMorningStock() {
   try {
     const res = await fetch(GAS_URL);
     const data = await res.json();
@@ -620,6 +622,7 @@ function resetOrder() {
 renderMenu();
 buildDateOptions();
 initLiff();
+loadMorningStock();
 </script>
 </body>
 </html>
