@@ -289,6 +289,14 @@
   </div>
 </header>
 
+<div id="morningStockBanner" style="background:#2a1f1a;margin:0 16px 12px;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+  <div>
+    <div style="color:rgba(255,255,255,0.5);font-size:11px;letter-spacing:0.1em;">本日の残り在庫</div>
+    <div id="morningStockNum" style="font-family:Georgia,serif;font-size:26px;color:#c8955a;line-height:1;">-</div>
+    <div style="color:rgba(255,255,255,0.4);font-size:11px;">個</div>
+  </div>
+  <div id="morningStockBadge" style="padding:6px 14px;border-radius:20px;font-size:12px;background:rgba(45,106,45,0.3);color:#7dbb7d;">受付中</div>
+</div>
 <div class="section-label">Menu</div>
 <div class="menu-list" id="menuList"></div>
 
@@ -359,6 +367,7 @@ const MENU = [
   { id: 'icetea',     emoji: '🍵', name: 'アイスティー',     price: 100, sub: true },];
 
 let counts = {};
+let morningStock = 999;
 let lineUserId = null;
 let lineDisplayName = null;
 
@@ -380,6 +389,26 @@ async function initLiff() {
   } finally {
     document.getElementById('initScreen').classList.add('hide');
   }
+  // 朝の在庫をGASから取得
+  try {
+    const res = await fetch(GAS_URL);
+    const data = await res.json();
+    morningStock = data.morningStock || 999;
+    const numEl = document.getElementById('morningStockNum');
+    const badgeEl = document.getElementById('morningStockBadge');
+    if (numEl) numEl.textContent = morningStock;
+    if (badgeEl) {
+      if (morningStock === 0) {
+        badgeEl.textContent = '売り切れ';
+        badgeEl.style.background = 'rgba(192,57,43,0.3)';
+        badgeEl.style.color = '#e88';
+      } else if (morningStock <= 5) {
+        badgeEl.textContent = '残りわずか';
+        badgeEl.style.background = 'rgba(200,150,62,0.3)';
+        badgeEl.style.color = '#e8b96a';
+      }
+    }
+  } catch(e) {}
 }
 
 function buildDateOptions() {
