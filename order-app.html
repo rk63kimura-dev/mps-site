@@ -451,7 +451,7 @@ function onDateChange() {
   }
   timeSelect.disabled = false;
   let h = 7, m = 15;
-  while (h < 10 || (h === 10 && m <= 30)) {
+  while (h < 10) {
     const label = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
     const opt = document.createElement('option');
     opt.value = label;
