@@ -300,7 +300,7 @@ function initDates() {
     if (dow === 0 || dow === 6) continue;
     const label = `${d.getMonth()+1}/${d.getDate()}（${dayNames[dow]}）`;
     const opt = document.createElement('option');
-    opt.value = d.toISOString().split('T')[0];
+    const yyyy = d.getFullYear(); const mm = String(d.getMonth()+1).padStart(2,'0'); const dd = String(d.getDate()).padStart(2,'0'); opt.value = yyyy+'-'+mm+'-'+dd;
     opt.textContent = label;
     sel.appendChild(opt);
     added++;
