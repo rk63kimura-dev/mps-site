@@ -257,6 +257,11 @@ function renderPage() {
         <input type="tel" id="phoneNum" placeholder="090-0000-0000">
         <div class="error-msg" id="phoneError">正しい電話番号を入力してください</div>
       </div>
+      <div class="form-group">
+        <label>メールアドレス（品切れ・遅延時の連絡先）<span class="required">*</span></label>
+        <input type="email" id="emailAddr" placeholder="example@email.com">
+        <div class="error-msg" id="emailError">正しいメールアドレスを入力してください</div>
+      </div>
     </div>
 
     <!-- FINAL SUMMARY -->
@@ -442,11 +447,15 @@ function submitOrder() {
   const building = document.getElementById('buildingInfo').value.trim();
   const contact = document.getElementById('contactName').value.trim();
   const phone = document.getElementById('phoneNum').value.trim();
-  if (!date || !time || !company || !town || !building || !contact || !phone) {
+  const email = document.getElementById('emailAddr').value.trim();
+  if (!date || !time || !company || !town || !building || !contact || !phone || !email) {
     alert('すべての必須項目を入力してください');
     return;
   }
   const phoneRegex = /^[0-9\-\+\(\)\s]{10,15}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) { document.getElementById('emailError').classList.add('show'); return; }
+  document.getElementById('emailError').classList.remove('show');
   if (!phoneRegex.test(phone)) { document.getElementById('phoneError').classList.add('show'); return; }
   document.getElementById('phoneError').classList.remove('show');
   saveDeliveryInfo();
@@ -459,7 +468,7 @@ function submitOrder() {
     body: JSON.stringify({
       type: 'delivery',
       date, time,
-      company, building: `${town} ${building}`, contact, phone,
+      company, building: `${town} ${building}`, contact, phone, email,
       items: Object.keys(quantities).map(id => ({ name: MENUS[id].name, qty: quantities[id], price: MENUS[id].price })),
       total: getTotal()
     })
