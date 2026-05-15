@@ -450,12 +450,19 @@ function onDateChange() {
     return;
   }
   timeSelect.disabled = false;
+  const now = new Date();
+  const todayStr = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  const isToday = dateVal === todayStr;
   let h = 7, m = 15;
   while (h < 10 || (h === 10 && m === 0)) {
     const label = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
     const opt = document.createElement('option');
     opt.value = label;
     opt.textContent = label;
+    if (isToday && (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes()))) {
+      opt.disabled = true;
+      opt.textContent = label + '（受付終了）';
+    }
     timeSelect.appendChild(opt);
     m += 15;
     if (m >= 60) { m -= 60; h++; }
