@@ -395,7 +395,7 @@ async function loadMorningStock() {
   try {
     const res = await fetch(GAS_URL);
     const data = await res.json();
-    morningStock = data.morningStock || 999;
+    morningStock = (data.morningStock !== undefined) ? data.morningStock : 30;
     const numEl = document.getElementById('morningStockNum');
     const badgeEl = document.getElementById('morningStockBadge');
     if (numEl) numEl.textContent = morningStock;
