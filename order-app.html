@@ -459,7 +459,8 @@ function onDateChange() {
     const opt = document.createElement('option');
     opt.value = label;
     opt.textContent = label;
-    if (isToday && (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes()))) {
+    const nowPlus15 = new Date(now.getTime() + 15 * 60000);
+    if (isToday && (h < nowPlus15.getHours() || (h === nowPlus15.getHours() && m <= nowPlus15.getMinutes()))) {
       opt.disabled = true;
       opt.textContent = label + '（受付終了）';
     }
