@@ -527,8 +527,10 @@ async function submitOrder() {
   if (items.length === 0) { showError('商品を1つ以上選んでください'); return; }
 
   const total = items.reduce((s, m) => s + m.price * counts[m.id], 0);
+  const yyyy = pickupDate.substring(0,4), mm = pickupDate.substring(5,7), dd = pickupDate.substring(8,10);
+  const pickupDateFormatted = mm + '/' + dd;
   const payload = {
-    name, phone, pickupTime: `${pickupDateLabel} ${pickupTime}`, total, lineUserId,
+    name, phone, pickupTime: `${pickupDateFormatted} ${pickupTime}`, total, lineUserId,
     items: items.map(m => ({
       emoji: m.emoji,
       name: m.name,
