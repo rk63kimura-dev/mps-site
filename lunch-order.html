@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ランチ予約 | Mothers Peace</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #1a1a1a; color: #fff; font-family: sans-serif; min-height: 100vh; }
+.header { background: #2a2a2a; padding: 20px; text-align: center; border-bottom: 1px solid #333; }
+.header h1 { font-size: 18px; letter-spacing: 0.2em; color: #e8d5a3; }
+.header p { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.container { max-width: 480px; margin: 0 auto; padding: 24px 16px; }
+.section { background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.field-label { display: block; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 10px; }
+input, select { width: 100%; background: #1a1a1a; border: 1px solid #444; border-radius: 8px; color: #fff; padding: 12px; font-size: 16px; outline: none; }
+input:focus, select:focus { border-color: #e8d5a3; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 4px; }
+.bc { background: #1a1a1a; border: 1px solid #444; border-radius: 8px; color: rgba(255,255,255,0.6); padding: 12px 4px; font-size: 12px; text-align: center; cursor: pointer; }
+.bc.sel { background: #e8d5a3; border-color: #e8d5a3; color: #1a1a1a; font-weight: bold; }
+.bc.dis { opacity: 0.3; pointer-events: none; }
+.submit-btn { width: 100%; background: #e8d5a3; color: #1a1a1a; border: none; border-radius: 12px; padding: 16px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+.submit-btn:disabled { opacity: 0.4; }
+.note { font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; margin-top: 12px; line-height: 1.8; }
+.done { text-align: center; padding: 40px 20px; }
+.done h2 { color: #e8d5a3; font-size: 20px; margin-bottom: 16px; }
+.done p { color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="header">
+<h1>LUNCH RESERVATION</h1>
+<p>Mothers Peace | 西元町ランチ 11:00-14:00</p>
+</div>
+<div class="container" id="main">
+<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5)">読み込み中...</div>
+</div>
+<script>
+const GAS="https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec";
+const LIFF_ID="2009748384-YPMycy7M";
+const TM=[{k:"11:00",l:"11:00-12:00"},{k:"12:00",l:"12:00-13:00"},{k:"13:00",l:"13:00-14:00"}];
+const ST=[{k:"sofa",l:"ソファ",s:"最大5名"},{k:"table",l:"テーブル",s:"最大3名"},{k:"counter",l:"カウンター",s:"1-2名"}];
+let sT="",sS="",pC=1,uid="",ss={};
+async function init(){
+  try{await liff.init({liffId:LIFF_ID});if(liff.isLoggedIn()){const p=await liff.getProfile();uid=p.userId;}}catch(e){}
+  try{const r=await fetch(GAS+"?type=lunchSeats");ss=await r.json();}catch(e){}
+  render();
+}
+function avail(sk,tk,cnt){
+  if(!ss[tk])return true;
+  const s=ss[tk];
+  if(sk==="sofa")return s.sofa===0;
+  if(sk==="table")return s.table===0&&cnt<=3;
+  if(sk==="counter")return s.counter>0&&cnt<=2;
+  return false;
+}
+function renderSeats(){
+  if(pC===1)return '<div class="bc sel" style="grid-column:span 3">カウンター（1名）</div>';
+  return ST.map(s=>{
+    const ok=sT?avail(s.k,sT,pC):true;
+    const cl=sS===s.k?"bc sel":ok?"bc":"bc dis";
+    return '<div class="'+cl+'" onclick="selS(\''+s.k+'\')"><div>'+s.l+'</div><div style="font-size:10px;opacity:0.7;margin-top:3px">'+s.s+'</div></div>';
+  }).join("");
+}
+function render(){
+  document.getElementById("main").innerHTML=
+  '<div class="section"><span class="field-label">お名前</span><input id="nm" placeholder="山田 太郎"></div>'
+  +'<div class="section"><span class="field-label">電話番号</span><input id="ph" type="tel" placeholder="090-0000-0000"></div>'
+  +'<div class="section"><span class="field-label">人数</span><select id="cnt" onchange="onCnt(this.value)"><option value="1">1名</option><option value="2">2名</option><option value="3">3名</option><option value="4">4名</option><option value="5">5名</option></select></div>'
+  +'<div class="section"><span class="field-label">時間帯</span><div class="grid3">'+TM.map(t=>'<div class="bc'+(sT===t.k?" sel":"")+'" onclick="selT(\''+t.k+'\')">'+t.l+'</div>').join("")+'</div></div>'
+  +'<div class="section"><span class="field-label">席タイプ</span><div class="grid3" id="sg">'+renderSeats()+'</div></div>'
+  +'<button class="submit-btn" onclick="doSub()">予約する</button>'
+  +'<p class="note">西元町・宇治川商店街 marukko_gyoza 2階<br>月-金 11:00-14:00</p>';
+}
+function onCnt(v){pC=parseInt(v);if(pC===1)sS="counter";else sS="";document.getElementById("sg").innerHTML=renderSeats();}
+function selT(k){sT=k;render();}
+function selS(k){if(pC===1)return;sS=k;document.getElementById("sg").innerHTML=renderSeats();}
+async function doSub(){
+  const nm=document.getElementById("nm").value.trim();
+  const ph=document.getElementById("ph").value.trim();
+  if(!nm){alert("お名前を入力してください");return;}
+  if(!ph){alert("電話番号を入力してください");return;}
+  if(!sT){alert("時間帯を選んでください");return;}
+  const seat=pC===1?"counter":sS;
+  if(!seat){alert("席タイプを選んでください");return;}
+  const sl=ST.find(s=>s.k===seat)?.l||"カウンター";
+  try{
+    const r=await fetch(GAS,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({type:"lunch",name:nm,phone:ph,time:sT,seat:seat,count:pC,lineUserId:uid})});
+    const d=await r.json();
+    if(d.ok){
+      document.getElementById("main").innerHTML='<div class="done"><h2>予約完了</h2><p>'+nm+' 様<br><br>'+sT+' / '+sl+'<br>'+pC+'名様<br><br>ご予約ありがとうございます。<br>当日お待ちしております。</p></div>';
+    }else{alert(d.message||"エラーが発生しました");}
+  }catch(e){alert("通信エラーが発生しました");}
+}
+window.addEventListener("load",init);
+</script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</body>
+</html>
