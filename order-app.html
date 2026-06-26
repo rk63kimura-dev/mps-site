@@ -466,7 +466,7 @@ function onDateChange() {
     opt.value = label;
     opt.textContent = label;
     const cutoff = now.getHours() > 9 || (now.getHours() === 9 && now.getMinutes() >= 45);
-    const nowPlus15 = new Date(now.getTime() + 15 * 60000);
+    const nowPlus15 = new Date(now.getTime() + 30 * 60000);
     if (isToday && (cutoff || h < nowPlus15.getHours() || (h === nowPlus15.getHours() && m <= nowPlus15.getMinutes()))) {
       opt.disabled = true;
       opt.textContent = label + '（受付終了）';
