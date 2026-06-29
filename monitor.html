@@ -81,13 +81,31 @@ function acknowledge(){
   stopAlarm();
 }
 
+function formatTime(v){
+  if(!v) return '';
+  const d = new Date(v);
+  if(!isNaN(d.getTime())){
+    return d.toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+  }
+  return String(v);
+}
+
+function formatReceived(v){
+  if(!v) return '';
+  const d = new Date(v);
+  if(!isNaN(d.getTime())){
+    return d.toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+  }
+  return String(v);
+}
+
 function renderOrders(orders){
   const box = document.getElementById('orders');
   box.innerHTML = orders.slice().reverse().map(o => `
     <div class="order">
-      <div class="top">${o.time || ''}　${o.name || ''} 様　¥${o.total || ''}</div>
+      <div class="top">${formatTime(o.time)}　${o.name || ''} 様　¥${o.total || ''}</div>
       <div class="items">${o.items || ''}</div>
-      <div>受付：${o.receivedAt || ''}</div>
+      <div>受付：${formatReceived(o.receivedAt)}</div>
     </div>
   `).join('');
 }
@@ -113,7 +131,7 @@ async function checkOrders(){
 
     if(latest.row > lastSeenRow && currentAlertRow !== latest.row){
       currentAlertRow = latest.row;
-      document.getElementById('alertTime').textContent = latest.time || '';
+      document.getElementById('alertTime').textContent = formatTime(latest.time);
       document.getElementById('alertName').textContent = (latest.name || '') + ' 様';
       document.getElementById('alertItems').textContent = latest.items || '';
       document.getElementById('alert').classList.add('show');
