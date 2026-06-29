@@ -105,6 +105,18 @@ function formatReceived(v){
   return String(v);
 }
 
+function extractTotal(text){
+  const s = String(text || '');
+  const m = s.match(/合計\s*¥?([0-9,]+)/);
+  return m ? '¥' + m[1] : '';
+}
+
+function extractPickup(text){
+  const s = String(text || '');
+  const m = s.match(/ピックアップ\s*([^|\n]+)?\s*(\d{1,2}:\d{2})/);
+  return m ? m[2] : '';
+}
+
 function renderOrders(orders){
   const box = document.getElementById('orders');
   box.innerHTML = orders.slice().reverse().map(o => {
@@ -112,8 +124,9 @@ function renderOrders(orders){
       return `
         <div class="order cancel">
           <div class="top">⚠️ キャンセル希望</div>
-          <div class="items">${o.name || ''} 様</div>
-          <div>受付：${formatReceived(o.receivedAt)}</div>
+          <div class="items">👤 ${o.name || ''} 様　🕒 ${formatReceived(o.receivedAt)}</div>
+          <div>🕗 ${extractPickup(o.items)} 受取</div>
+          <div>💰 ${extractTotal(o.items)}</div>
         </div>
       `;
     }
