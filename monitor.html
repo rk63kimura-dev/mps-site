@@ -6,16 +6,18 @@
 <title>Mother's Peace Monitor</title>
 <style>
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#20140f;color:#fff}
+body.alarmMode{animation:flash 0.8s infinite}
+@keyframes flash{0%{background:#20140f}50%{background:#b00020}100%{background:#20140f}}
 header{padding:22px;text-align:center;background:#2b1b15}
 h1{margin:0;font-size:34px}
 #status{font-size:22px;color:#d8b27b;margin-top:8px}
-.alert{background:#b00020;color:white;text-align:center;padding:35px 20px;display:none}
+.alert{background:#b00020;color:white;text-align:center;padding:45px 20px;display:none;min-height:70vh}
 .alert.show{display:block}
-.alert h2{font-size:54px;margin:0 0 20px}
-.alert .time{font-size:64px;font-weight:bold}
-.alert .name{font-size:44px;margin:15px 0}
-.alert .items{font-size:30px;line-height:1.5}
-button{font-size:34px;padding:18px 50px;border-radius:18px;border:0;margin-top:25px;background:#fff;color:#b00020;font-weight:bold}
+.alert h2{font-size:76px;margin:0 0 25px}
+.alert .time{font-size:96px;font-weight:bold}
+.alert .name{font-size:64px;margin:18px 0;font-weight:bold}
+.alert .items{font-size:42px;line-height:1.5}
+button{font-size:48px;padding:24px 70px;border-radius:24px;border:0;margin-top:35px;background:#fff;color:#b00020;font-weight:bold}
 .list{padding:20px}
 .order{background:#fff;color:#222;border-radius:18px;padding:18px;margin:14px 0;font-size:26px}
 .order .top{font-weight:bold;font-size:32px}
@@ -29,7 +31,7 @@ button{font-size:34px;padding:18px 50px;border-radius:18px;border:0;margin-top:2
 </header>
 
 <section id="alert" class="alert">
-  <h2>🔔 新しい注文！</h2>
+  <h2>🔔 新しい注文！！</h2>
   <div class="time" id="alertTime"></div>
   <div class="name" id="alertName"></div>
   <div class="items" id="alertItems"></div>
@@ -64,12 +66,14 @@ function beep(){
 function startAlarm(){
   stopAlarm();
   beep();
-  alarmTimer = setInterval(beep, 1200);
+  alarmTimer = setInterval(beep, 900);
+  document.body.classList.add('alarmMode');
 }
 
 function stopAlarm(){
   if(alarmTimer) clearInterval(alarmTimer);
   alarmTimer = null;
+  document.body.classList.remove('alarmMode');
 }
 
 function acknowledge(){
