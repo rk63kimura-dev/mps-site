@@ -21,6 +21,7 @@ h1{margin:0;font-size:34px}
 button{font-size:48px;padding:24px 70px;border-radius:24px;border:0;margin-top:35px;background:#fff;color:#b00020;font-weight:bold}
 .list{padding:20px}
 .order{background:#fff;color:#222;border-radius:18px;padding:18px;margin:14px 0;font-size:26px}
+.order.cancel{background:#f4b400;color:#221100;border:4px solid #8a5a00}
 .order .top{font-weight:bold;font-size:32px}
 .order .items{margin-top:8px;color:#444}
 </style>
@@ -106,13 +107,25 @@ function formatReceived(v){
 
 function renderOrders(orders){
   const box = document.getElementById('orders');
-  box.innerHTML = orders.slice().reverse().map(o => `
-    <div class="order">
-      <div class="top">${formatTime(o.time)}　${o.name || ''} 様　¥${o.total || ''}</div>
-      <div class="items">${o.items || ''}</div>
-      <div>受付：${formatReceived(o.receivedAt)}</div>
-    </div>
-  `).join('');
+  box.innerHTML = orders.slice().reverse().map(o => {
+    if(o.type === 'キャンセル'){
+      return `
+        <div class="order cancel">
+          <div class="top">⚠️ キャンセル希望</div>
+          <div class="items">${o.name || ''} 様</div>
+          <div>受付：${formatReceived(o.receivedAt)}</div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="order">
+        <div class="top">${formatTime(o.time)}　${o.name || ''} 様　¥${o.total || ''}</div>
+        <div class="items">${o.items || ''}</div>
+        <div>受付：${formatReceived(o.receivedAt)}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 async function checkOrders(){
