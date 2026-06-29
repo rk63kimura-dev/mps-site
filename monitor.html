@@ -12,6 +12,7 @@ header{padding:22px;text-align:center;background:#2b1b15}
 h1{margin:0;font-size:34px}
 #status{font-size:22px;color:#d8b27b;margin-top:8px}
 .alert{background:#b00020;color:white;text-align:center;padding:45px 20px;display:none;min-height:70vh}
+.alert.cancel{background:#f4b400;color:#221100}
 .alert.show{display:block}
 .alert h2{font-size:76px;margin:0 0 25px}
 .alert .time{font-size:96px;font-weight:bold}
@@ -138,7 +139,15 @@ async function checkOrders(){
       document.getElementById('alertTime').textContent = formatTime(latest.time);
       document.getElementById('alertName').textContent = (latest.name || '') + ' 様';
       document.getElementById('alertItems').textContent = latest.items || '';
-      document.getElementById('alert').classList.add('show');
+      const alertBox = document.getElementById('alert');
+      alertBox.classList.remove('cancel');
+      if(latest.type === 'キャンセル'){
+        document.querySelector('#alert h2').textContent = '⚠️ キャンセル希望！！';
+        alertBox.classList.add('cancel');
+      }else{
+        document.querySelector('#alert h2').textContent = '🔔 新しい注文！！';
+      }
+      alertBox.classList.add('show');
       startAlarm();
     }
   }catch(e){
