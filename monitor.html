@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mother's Peace Monitor</title>
+<style>
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#20140f;color:#fff}
+header{padding:22px;text-align:center;background:#2b1b15}
+h1{margin:0;font-size:34px}
+#status{font-size:22px;color:#d8b27b;margin-top:8px}
+.alert{background:#b00020;color:white;text-align:center;padding:35px 20px;display:none}
+.alert.show{display:block}
+.alert h2{font-size:54px;margin:0 0 20px}
+.alert .time{font-size:64px;font-weight:bold}
+.alert .name{font-size:44px;margin:15px 0}
+.alert .items{font-size:30px;line-height:1.5}
+button{font-size:34px;padding:18px 50px;border-radius:18px;border:0;margin-top:25px;background:#fff;color:#b00020;font-weight:bold}
+.list{padding:20px}
+.order{background:#fff;color:#222;border-radius:18px;padding:18px;margin:14px 0;font-size:26px}
+.order .top{font-weight:bold;font-size:32px}
+.order .items{margin-top:8px;color:#444}
+</style>
+</head>
+<body>
+<header>
+  <h1>🥪 Mother's Peace Monitor</h1>
+  <div id="status">注文を監視中...</div>
+</header>
+
+<section id="alert" class="alert">
+  <h2>🔔 新しい注文！</h2>
+  <div class="time" id="alertTime"></div>
+  <div class="name" id="alertName"></div>
+  <div class="items" id="alertItems"></div>
+  <button onclick="acknowledge()">確認</button>
+</section>
+
+<div class="list">
+  <h2>直近の注文</h2>
+  <div id="orders"></div>
+</div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
+let lastSeenRow = Number(localStorage.getItem('lastSeenRow') || 0);
+let currentAlertRow = null;
+let audioCtx = null;
+let alarmTimer = null;
+
+function beep(){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.frequency.value = 880;
+    g.gain.value = 0.25;
+    o.start();
+    setTimeout(()=>o.stop(), 350);
+  }catch(e){}
+}
+
+function startAlarm(){
+  stopAlarm();
+  beep();
+  alarmTimer = setInterval(beep, 1200);
+}
+
+function stopAlarm(){
+  if(alarmTimer) clearInterval(alarmTimer);
+  alarmTimer = null;
+}
+
+function acknowledge(){
+  if(currentAlertRow){
+    lastSeenRow = currentAlertRow;
+    localStorage.setItem('lastSeenRow', lastSeenRow);
+  }
+  document.getElementById('alert').classList.remove('show');
+  stopAlarm();
+}
+
+function renderOrders(orders){
+  const box = document.getElementById('orders');
+  box.innerHTML = orders.slice().reverse().map(o => `
+    <div class="order">
+      <div class="top">${o.time || ''}　${o.name || ''} 様　¥${o.total || ''}</div>
+      <div class="items">${o.items || ''}</div>
+      <div>受付：${o.receivedAt || ''}</div>
+    </div>
+  `).join('');
+}
+
+async function checkOrders(){
+  try{
+    const res = await fetch(GAS_URL + '?type=latestOrders&ts=' + Date.now());
+    const data = await res.json();
+    const orders = data.orders || [];
+    document.getElementById('status').textContent = '監視中　' + new Date().toLocaleTimeString();
+
+    renderOrders(orders);
+
+    if(orders.length === 0) return;
+
+    const latest = orders[orders.length - 1];
+
+    if(!lastSeenRow){
+      lastSeenRow = latest.row;
+      localStorage.setItem('lastSeenRow', lastSeenRow);
+      return;
+    }
+
+    if(latest.row > lastSeenRow && currentAlertRow !== latest.row){
+      currentAlertRow = latest.row;
+      document.getElementById('alertTime').textContent = latest.time || '';
+      document.getElementById('alertName').textContent = (latest.name || '') + ' 様';
+      document.getElementById('alertItems').textContent = latest.items || '';
+      document.getElementById('alert').classList.add('show');
+      startAlarm();
+    }
+  }catch(e){
+    document.getElementById('status').textContent = '接続エラー';
+  }
+}
+
+document.body.addEventListener('click', () => {
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}, {once:false});
+
+checkOrders();
+setInterval(checkOrders, 3000);
+</script>
+</body>
+</html>
