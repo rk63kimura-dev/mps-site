@@ -416,17 +416,46 @@ function renderSummary() {
     const line = `<div class="summary-line"><div class="summary-item-name">${m.name} × ${q}</div><div class="summary-item-price">¥${sub.toLocaleString()}</div></div>`;
     linesHTML += line; finalHTML += line;
   });
+  const deliveryFee = totalQty * 50;
+  const grandTotal = total + deliveryFee;
+
+  const feeLine = `<div class="summary-line">
+    <div class="summary-item-name">配達手数料（50円 × ${totalQty}個）</div>
+    <div class="summary-item-price">¥${deliveryFee.toLocaleString()}</div>
+  </div>`;
+
+  linesHTML += feeLine;
+  finalHTML += feeLine;
+
   box.style.display = 'block';
   lines.innerHTML = linesHTML;
-  totalEl.textContent = '¥' + total.toLocaleString();
+  totalEl.textContent = '¥' + grandTotal.toLocaleString();
+
   finalBox.style.display = 'block';
   finalLines.innerHTML = finalHTML;
-  finalTotal.textContent = '¥' + total.toLocaleString();
+  finalTotal.textContent = '¥' + grandTotal.toLocaleString();
+
   warning.classList.toggle('show', totalQty < 2);
 }
 
-function getTotalQty() { return Object.values(quantities).reduce((a,b) => a+b, 0); }
-function getTotal() { return Object.keys(quantities).reduce((sum,id) => sum + MENUS[id].price * quantities[id], 0); }
+function getTotalQty() {
+  return Object.values(quantities).reduce((a, b) => a + b, 0);
+}
+
+function getProductTotal() {
+  return Object.keys(quantities).reduce(
+    (sum, id) => sum + MENUS[id].price * quantities[id],
+    0
+  );
+}
+
+function getDeliveryFee() {
+  return getTotalQty() * 50;
+}
+
+function getTotal() {
+  return getProductTotal() + getDeliveryFee();
+}
 
 function saveDeliveryInfo() {
   try {
