@@ -273,6 +273,11 @@ function renderPage() {
   `;
 
   initDates();
+
+  document
+    .getElementById('deliveryDate')
+    .addEventListener('change', loadTimeSlotsForDate);
+
   initTimeSlots();
   loadDeliveryInfo();
 }
@@ -324,16 +329,107 @@ function initDates() {
 
 function initTimeSlots() {
   const sel = document.getElementById('deliveryTime');
-  const times = ['11:00〜11:15','11:15〜11:30','11:30〜11:45','11:45〜12:00','12:00〜12:15','12:15〜12:30','12:30〜12:45','12:45〜13:00'];
-  times.forEach(t => {
-    const slot = SLOTS.find(s => s.time === t);
-    const isFull = slot && !slot.available;
-    const opt = document.createElement('option');
-    opt.value = t;
-    opt.textContent = isFull ? `${t}（満枠）` : t;
-    if (isFull) opt.disabled = true;
-    sel.appendChild(opt);
+
+  sel.innerHTML =
+    '<option value="">先に日付を選択してください</option>';
+
+  sel.disabled = true;
+}
+
+
+async function loadTimeSlotsForDate() {
+  const date =
+    document.getElementById('deliveryDate').value;
+
+  const sel =
+    document.getElementById('deliveryTime');
+
+  if (!date) {
+    initTimeSlots();
+    return;
+  }
+
+  sel.disabled = true;
+  sel.innerHTML =
+    '<option value="">時間枠を確認中...</option>';
+
+  try {
+    const url =
+      GAS_URL +
+      '?type=deliverySlots' +
+      '&date=' + encodeURIComponent(date) +
+      '&_=' + Date.now();
+
+    const response = await fetch(url, {
+      cache: 'no-store'
+    });
+
+    const data = await response.json();
+
+    if (!data.ok) {
+      throw new Error(
+        data.error || '時間枠を取得できませんでした'
+      );
+    }
+
+    SLOTS = data.slots || [];
+    renderTimeSlots();
+
+  } catch (error) {
+    console.error(error);
+
+    sel.innerHTML =
+      '<option value="">時間枠を取得できません</option>';
+
+    alert(
+      '時間枠の読み込みに失敗しました。' +
+      'ページを再読み込みしてください。'
+    );
+  }
+}
+
+
+function renderTimeSlots() {
+  const sel =
+    document.getElementById('deliveryTime');
+
+  const times = [
+    '11:00〜11:15',
+    '11:15〜11:30',
+    '11:30〜11:45',
+    '11:45〜12:00',
+    '12:00〜12:15',
+    '12:15〜12:30',
+    '12:30〜12:45',
+    '12:45〜13:00'
+  ];
+
+  sel.innerHTML =
+    '<option value="">選択してください</option>';
+
+  times.forEach(time => {
+    const slot =
+      SLOTS.find(item => item.time === time);
+
+    const isFull =
+      slot && !slot.available;
+
+    const option =
+      document.createElement('option');
+
+    option.value = time;
+
+    option.textContent =
+      isFull
+        ? `${time}（満枠）`
+        : time;
+
+    option.disabled = Boolean(isFull);
+
+    sel.appendChild(option);
   });
+
+  sel.disabled = false;
 }
 
 // ===== MENU =====
