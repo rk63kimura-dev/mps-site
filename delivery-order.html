@@ -313,6 +313,12 @@ function initDates() {
 
   while (added < 7) {
     d.setDate(d.getDate() + 1);
+
+    // 火〜金のみ受付
+    const day = d.getDay(); // 日=0 月=1 火=2 水=3 木=4 金=5 土=6
+    if (day === 0 || day === 1 || day === 6) {
+      continue;
+    }
     const dow = d.getDay();
     if (dow === 0 || dow === 6) continue;
     const label = `${d.getMonth()+1}/${d.getDate()}（${dayNames[dow]}）`;
