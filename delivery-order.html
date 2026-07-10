@@ -124,7 +124,7 @@
 
 <div class="notice-bar">
   <strong>配達エリア：三宮・元町周辺</strong>　月〜金 11:00〜13:00<br>
-  前日20:00までにご注文ください　2個以上から承ります<br>朝仕込み・ランチお届け｜お届け時は常温〜冷蔵状態となります
+  当日10:30までにご注文ください　2個以上から承ります<br>朝仕込み・ランチお届け｜お届け時は常温〜冷蔵状態となります
 </div>
 
 <main id="mainContent">
@@ -277,7 +277,7 @@ function renderPage() {
     </div>
 
     <button class="submit-btn" id="submitBtn" onclick="submitOrder()">注文を確定する</button>
-    <div class="deadline-note">前日までに決めかねる場合は<br>当日LINE電話でご相談ください 📞</div>
+    <div class="deadline-note">当日10:30までご注文いただけます</div>
   `;
 
   initDates();
@@ -291,8 +291,18 @@ function initDates() {
   const dayNames = ['日','月','火','水','木','金','土'];
   let added = 0;
   let d = new Date(today);
-  const isPastCutoff = today.getHours() >= 20;
-  if (isPastCutoff) d.setDate(d.getDate() + 1);
+
+  // 当日10:30までは今日を選択可能
+  // 10:30を過ぎたら翌日から受付
+  const isPastCutoff =
+    today.getHours() > 10 ||
+    (today.getHours() === 10 && today.getMinutes() > 30);
+
+  // 下のwhile内で最初に1日進むため、
+  // 締切前は前日から開始して「今日」を最初に表示する
+  if (!isPastCutoff) {
+    d.setDate(d.getDate() - 1);
+  }
 
   const placeholder = document.createElement('option');
   placeholder.value = '';
