@@ -166,7 +166,34 @@ window.onload = async () => {
 function renderPage() {
   const main = document.getElementById('mainContent');
   main.innerHTML = `
-    <!-- STOCK -->
+    <!-- ORDER HISTORY -->
+  <div class="card" id="orderHistoryCard">
+    <div class="section-title">注文履歴・キャンセル</div>
+
+    <button
+      type="button"
+      onclick="toggleOrderHistory()"
+      style="
+        width:100%;
+        padding:12px;
+        border:1px solid var(--border);
+        border-radius:10px;
+        background:#fff;
+        color:var(--brown);
+        font-size:14px;
+        cursor:pointer;
+      "
+    >
+      この端末の注文履歴を見る
+    </button>
+
+    <div
+      id="orderHistoryList"
+      style="display:none;margin-top:14px;"
+    ></div>
+  </div>
+
+  <!-- STOCK -->
     <div class="stock-banner" id="stockBanner">
       <div>
         <div class="stock-label">本日の残り在庫</div>
@@ -280,6 +307,7 @@ function renderPage() {
 
   initTimeSlots();
   loadDeliveryInfo();
+  renderOrderHistory();
 }
 
 function initDates() {
@@ -636,6 +664,453 @@ function showSuccess(date, time, company) {
       </div>
     </div>`;
 }
+
+// ===== DELIVERY ORDER HISTORY V1 =====
+
+const DELIVERY_HISTORY_KEY = 'mps_delivery_orders';
+
+function makeRandomId(prefix = '') {
+  if (
+    window.crypto &&
+    typeof window.crypto.randomUUID === 'function'
+  ) {
+    return prefix + window.crypto.randomUUID();
+  }
+
+  return (
+    prefix +
+    Date.now().toString(36) +
+    '-' +
+    Math.random().toString(36).slice(2, 12)
+  );
+}
+
+function getDeliveryOrders() {
+  try {
+    const orders = JSON.parse(
+      localStorage.getItem(DELIVERY_HISTORY_KEY)
+    );
+    return Array.isArray(orders) ? orders : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveDeliveryOrder(order) {
+  const orders = getDeliveryOrders();
+  orders.unshift(order);
+
+  localStorage.setItem(
+    DELIVERY_HISTORY_KEY,
+    JSON.stringify(orders.slice(0, 30))
+  );
+}
+
+function updateDeliveryOrderStatus(
+  orderId,
+  status,
+  cancelledAt = ''
+) {
+  const updated = getDeliveryOrders().map(order => {
+    if (order.orderId !== orderId) return order;
+
+    return {
+      ...order,
+      status,
+      cancelledAt
+    };
+  });
+
+  localStorage.setItem(
+    DELIVERY_HISTORY_KEY,
+    JSON.stringify(updated)
+  );
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(
+    /[&<>"']/g,
+    character => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    })[character]
+  );
+}
+
+function toggleOrderHistory() {
+  const list = document.getElementById('orderHistoryList');
+  if (!list) return;
+
+  const willOpen = list.style.display !== 'block';
+  list.style.display = willOpen ? 'block' : 'none';
+
+  if (willOpen) {
+    renderOrderHistory();
+  }
+}
+
+function renderOrderHistory() {
+  const list = document.getElementById('orderHistoryList');
+  if (!list) return;
+
+  const orders = getDeliveryOrders();
+
+  if (orders.length === 0) {
+    list.innerHTML = `
+      <p style="
+        text-align:center;
+        color:var(--text-muted);
+        font-size:13px;
+        padding:12px 0;
+      ">
+        この端末に保存された注文はありません。
+      </p>
+    `;
+    return;
+  }
+
+  list.innerHTML = orders.map(order => {
+    const cancelled = order.status === 'キャンセル';
+
+    const itemsHtml = (order.items || [])
+      .map(item =>
+        `${escapeHtml(item.name)} × ${Number(item.qty || 0)}`
+      )
+      .join('<br>');
+
+    const actionHtml = cancelled
+      ? `
+        <div style="
+          margin-top:12px;
+          color:#8a7060;
+          font-size:13px;
+          font-weight:bold;
+        ">
+          キャンセル済み
+        </div>
+      `
+      : `
+        <button
+          type="button"
+          data-order-id="${escapeHtml(order.orderId)}"
+          onclick="cancelStoredDelivery(this.dataset.orderId)"
+          style="
+            margin-top:12px;
+            padding:9px 16px;
+            border:1px solid #c0392b;
+            border-radius:18px;
+            background:#fff;
+            color:#c0392b;
+            font-size:12px;
+            cursor:pointer;
+          "
+        >
+          この注文をキャンセル
+        </button>
+      `;
+
+    return `
+      <div style="
+        border:1px solid var(--border);
+        border-radius:10px;
+        padding:14px;
+        margin-bottom:10px;
+        background:#fff;
+        font-size:13px;
+        line-height:1.7;
+      ">
+        <div style="
+          font-weight:bold;
+          color:var(--dark);
+          margin-bottom:6px;
+        ">
+          ${escapeHtml(order.date)}
+          ${escapeHtml(order.time)}
+        </div>
+
+        <div>${itemsHtml}</div>
+
+        <div style="margin-top:6px;">
+          配達料込み合計　
+          <strong>
+            ¥${Number(order.total || 0).toLocaleString()}
+          </strong>
+        </div>
+
+        <div style="
+          margin-top:5px;
+          color:var(--text-muted);
+          font-size:10px;
+        ">
+          注文番号：${escapeHtml(order.orderId)}
+        </div>
+
+        ${actionHtml}
+      </div>
+    `;
+  }).join('');
+}
+
+function submitOrder() {
+  if (getTotalQty() < 2) {
+    document
+      .getElementById('minWarning')
+      .classList.add('show');
+    return;
+  }
+
+  const date = document.getElementById('deliveryDate').value;
+  const time = document.getElementById('deliveryTime').value;
+  const company = document.getElementById('companyName').value.trim();
+  const town = document.getElementById('townSelect').value;
+  const building = document.getElementById('buildingInfo').value.trim();
+  const contact = document.getElementById('contactName').value.trim();
+  const phone = document.getElementById('phoneNum').value.trim();
+
+  if (
+    !date ||
+    !time ||
+    !company ||
+    !town ||
+    !building ||
+    !contact ||
+    !phone
+  ) {
+    alert('すべての必須項目を入力してください');
+    return;
+  }
+
+  const phoneRegex = /^[0-9\-\+\(\)\s]{10,15}$/;
+
+  if (!phoneRegex.test(phone)) {
+    document
+      .getElementById('phoneError')
+      .classList.add('show');
+    return;
+  }
+
+  document
+    .getElementById('phoneError')
+    .classList.remove('show');
+
+  saveDeliveryInfo();
+
+  const items = Object.keys(quantities).map(id => ({
+    name: MENUS[id].name,
+    qty: quantities[id],
+    price: MENUS[id].price
+  }));
+
+  const orderId = makeRandomId('MPS-');
+  const cancelToken = makeRandomId('CT-');
+  const total = getTotal();
+
+  const historyOrder = {
+    orderId,
+    cancelToken,
+    date,
+    time,
+    company,
+    contact,
+    items,
+    total,
+    totalQty: getTotalQty(),
+    status: '受付済み',
+    createdAt: new Date().toISOString()
+  };
+
+  const submitButton = document.getElementById('submitBtn');
+  submitButton.disabled = true;
+  submitButton.textContent = '送信中...';
+
+  let completed = false;
+
+  const finishOrder = () => {
+    if (completed) return;
+    completed = true;
+
+    saveDeliveryOrder(historyOrder);
+    showSuccess(date, time, company, orderId);
+  };
+
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      type: 'delivery',
+      orderId,
+      cancelToken,
+      date,
+      time,
+      company,
+      building: `${town} ${building}`,
+      contact,
+      phone,
+      items,
+      total,
+      totalQty: getTotalQty()
+    })
+  })
+  .then(finishOrder)
+  .catch(finishOrder);
+}
+
+async function cancelStoredDelivery(orderId) {
+  const order = getDeliveryOrders().find(
+    item => item.orderId === orderId
+  );
+
+  if (!order) {
+    alert('この端末に注文情報が見つかりません。');
+    return;
+  }
+
+  if (order.status === 'キャンセル') {
+    alert('この注文はすでにキャンセル済みです。');
+    return;
+  }
+
+  if (
+    !confirm(
+      'この注文をキャンセルしますか？\n\n' +
+      order.date + ' ' + order.time
+    )
+  ) {
+    return;
+  }
+
+  try {
+    const url =
+      GAS_URL +
+      '?type=cancelDelivery' +
+      '&orderId=' +
+      encodeURIComponent(order.orderId) +
+      '&token=' +
+      encodeURIComponent(order.cancelToken) +
+      '&_=' +
+      Date.now();
+
+    const response = await fetch(url, {
+      cache: 'no-store'
+    });
+
+    const result = await response.json();
+
+    if (!result.ok) {
+      throw new Error(
+        result.error || 'キャンセルできませんでした'
+      );
+    }
+
+    updateDeliveryOrderStatus(
+      order.orderId,
+      'キャンセル',
+      result.cancelledAt || ''
+    );
+
+    alert(
+      'キャンセルが成立しました。\n' +
+      '時間枠と在庫を戻しました。'
+    );
+
+    location.reload();
+
+  } catch (error) {
+    alert(
+      error.message ||
+      'キャンセル処理に失敗しました。'
+    );
+  }
+}
+
+function showSuccess(date, time, company, orderId) {
+  document
+    .getElementById('mainContent')
+    .innerHTML = `
+      <div style="
+        text-align:center;
+        padding:40px 20px;
+      ">
+        <div style="
+          width:72px;
+          height:72px;
+          background:var(--green);
+          border-radius:50%;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          margin:0 auto 20px;
+          color:#fff;
+          font-size:32px;
+        ">
+          ✓
+        </div>
+
+        <div style="
+          font-family:Georgia,serif;
+          font-size:22px;
+          color:var(--dark);
+          margin-bottom:8px;
+        ">
+          ご注文ありがとうございます
+        </div>
+
+        <div style="
+          font-size:13px;
+          color:var(--text-muted);
+          line-height:1.8;
+        ">
+          <strong>${escapeHtml(company)}</strong> 様
+          <br><br>
+
+          ${escapeHtml(date)}
+          ${escapeHtml(time)} にお届けします。
+          <br><br>
+
+          注文番号
+          <br>
+          <strong>${escapeHtml(orderId)}</strong>
+          <br><br>
+
+          ご不明な点はLINEにてお問い合わせください。
+          <br><br>
+
+          <em style="
+            color:#7a6a52;
+            font-size:11px;
+          ">
+            Mother's Peace Sandwich
+          </em>
+        </div>
+
+        <div style="margin-top:24px;">
+          <button
+            type="button"
+            data-order-id="${escapeHtml(orderId)}"
+            onclick="cancelStoredDelivery(this.dataset.orderId)"
+            style="
+              background:none;
+              border:1px solid #c0392b;
+              color:#c0392b;
+              padding:10px 24px;
+              border-radius:20px;
+              font-size:13px;
+              cursor:pointer;
+            "
+          >
+            この注文をキャンセルする
+          </button>
+        </div>
+      </div>
+    `;
+}
+
 </script>
 </body>
 </html>
