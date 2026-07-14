@@ -23,6 +23,7 @@ button{font-size:48px;padding:24px 70px;border-radius:24px;border:0;margin-top:3
 .order{background:#fff;color:#222;border-radius:18px;padding:18px;margin:14px 0;font-size:26px}
 .order.cancel{background:#f4b400;color:#221100;border:4px solid #8a5a00}
 .order .top{font-weight:bold;font-size:32px}
+.order .pickup-date{color:#b00020;margin-right:16px}
 .order .items{margin-top:8px;color:#444}
 </style>
 </head>
@@ -96,6 +97,35 @@ function formatTime(v){
   return String(v);
 }
 
+function formatOrderDate(v){
+
+ if(!v) return '日付未設定';
+
+ const s = String(v).trim();
+ let m;
+
+ m = s.match(/^(\d{1,2})\/(\d{1,2})$/);
+ if(m){
+  return `${Number(m[1])}/${Number(m[2])}`;
+ }
+
+ m = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+ if(m){
+  return `${Number(m[2])}/${Number(m[3])}`;
+ }
+
+ const d = new Date(v);
+
+ if(!isNaN(d.getTime())){
+  return d.toLocaleDateString(
+   'ja-JP',
+   {month:'numeric', day:'numeric'}
+  );
+ }
+
+ return s;
+}
+
 function formatReceived(v){
   if(!v) return '';
   const d = new Date(v);
@@ -133,7 +163,7 @@ function renderOrders(orders){
 
     return `
       <div class="order">
-        <div class="top">${formatTime(o.time)}　${o.name || ''} 様　¥${o.total || ''}</div>
+        <div class="top"><span class="pickup-date">${formatOrderDate(o.date)}</span>${formatTime(o.time)}　${o.name || ''} 様　¥${o.total || ''}</div>
         <div class="items">${o.items || ''}</div>
         <div>受付：${formatReceived(o.receivedAt)}</div>
       </div>
@@ -162,7 +192,7 @@ async function checkOrders(){
 
     if(latest.row > lastSeenRow && currentAlertRow !== latest.row){
       currentAlertRow = latest.row;
-      document.getElementById('alertTime').textContent = formatTime(latest.time);
+      document.getElementById('alertTime').textContent = formatOrderDate(latest.date) + '　' + formatTime(latest.time);
       document.getElementById('alertName').textContent = (latest.name || '') + ' 様';
       document.getElementById('alertItems').textContent = latest.items || '';
       const alertBox = document.getElementById('alert');
