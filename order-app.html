@@ -424,7 +424,7 @@ function buildDateOptions() {
   const today = new Date();
   let count = 0;
   let d = new Date(today);
-  while (count < 7) {
+  while (count < 3) {
     const dow = d.getDay();
     if (dow >= 1 && dow <= 5) { // 月〜金のみ
       const year = d.getFullYear();
