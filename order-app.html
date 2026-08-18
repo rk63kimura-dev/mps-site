@@ -356,20 +356,9 @@ const LIFF_ID = '2009748384-YPMycy7M';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
 
 const MENU = [
-  { id: 'morning_pork_hot', emoji: '🌅', name: 'MORNING SET｜プルドポーク＋ホットコーヒー', price: 550, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
-  { id: 'morning_pork_ice', emoji: '🌅', name: 'MORNING SET｜プルドポーク＋アイスコーヒー', price: 550, sub: true },
-  { id: 'morning_pork_tea', emoji: '🌅', name: 'MORNING SET｜プルドポーク＋紅茶', price: 550, sub: true },
-  { id: 'morning_pork_icetea', emoji: '🌅', name: 'MORNING SET｜プルドポーク＋アイスティー', price: 550, sub: true },
-
-  { id: 'morning_tuna_hot', emoji: '🐟', name: 'MORNING SET｜プレミアムツナ＆クリームチーズ＋ホットコーヒー', price: 550, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
-  { id: 'morning_tuna_ice', emoji: '🐟', name: 'MORNING SET｜プレミアムツナ＆クリームチーズ＋アイスコーヒー', price: 550, sub: true },
-  { id: 'morning_tuna_tea', emoji: '🐟', name: 'MORNING SET｜プレミアムツナ＆クリームチーズ＋紅茶', price: 550, sub: true },
-  { id: 'morning_tuna_icetea', emoji: '🐟', name: 'MORNING SET｜プレミアムツナ＆クリームチーズ＋アイスティー', price: 550, sub: true },
-
-  { id: 'morning_prosciutto_hot', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ＋ホットコーヒー', price: 550, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
-  { id: 'morning_prosciutto_ice', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ＋アイスコーヒー', price: 550, sub: true },
-  { id: 'morning_prosciutto_tea', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ＋紅茶', price: 550, sub: true },
-  { id: 'morning_prosciutto_icetea', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ＋アイスティー', price: 550, sub: true },
+  { id: 'morning_pork', emoji: '🌅', name: 'MORNING SET｜プルドポーク', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
+  { id: 'morning_tuna', emoji: '🐟', name: 'MORNING SET｜プレミアムツナ＆クリームチーズ', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
+  { id: 'morning_prosciutto', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
 
   { id: 'pork',     emoji: '🥩', name: 'プルドポークサンド',                 price: 550 },
   { id: 'pork_cheese', emoji: '🥩', name: 'プルドポークサンド＋チーズ',      price: 650, sub: true },
@@ -389,6 +378,7 @@ const MENU = [
   { id: 'lemonsquash', emoji: '🍋', name: '淡路島レモンスカッシュ', price: 250, soldout: true },];
 
 let counts = {};
+let morningDrinks = {};
 let morningStock = 999;
 let lineUserId = null;
 let lineDisplayName = null;
@@ -510,6 +500,19 @@ function renderMenu() {
       <div class="item-info">
         <div class="item-name">${item.name}</div>
         ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
+        ${item.morning ? `
+          <select
+            id="drink-${item.id}"
+            onchange="setMorningDrink('${item.id}', this.value)"
+            style="margin-top:10px;padding:9px 10px;border:1px solid #d9c8b5;border-radius:8px;background:#fffaf5;font-size:14px;width:100%;max-width:280px;"
+          >
+            <option value="">ドリンクを選んでください</option>
+            <option value="ホットコーヒー">☕ ホットコーヒー</option>
+            <option value="アイスコーヒー">🧊 アイスコーヒー</option>
+            <option value="紅茶">🍵 紅茶</option>
+            <option value="アイスティー">🧊 アイスティー</option>
+          </select>
+        ` : ''}
         <div class="item-price">${item.soldout ? '売り切れ' : '¥' + item.price.toLocaleString()}</div>
       </div>
       <div class="counter">
@@ -519,6 +522,18 @@ function renderMenu() {
       </div>
     </div>
   `).join('');
+}
+
+function setMorningDrink(id, value) {
+  morningDrinks[id] = value;
+  updateSummary();
+}
+
+function displayItemName(item) {
+  if (item.morning && morningDrinks[item.id]) {
+    return item.name + '＋' + morningDrinks[item.id];
+  }
+  return item.name;
 }
 
 function change(id, delta) {
@@ -537,7 +552,7 @@ function updateSummary() {
   summary.classList.add('visible');
   document.getElementById('summaryItems').innerHTML = items.map(m => `
     <div class="summary-row">
-      <span>${m.name} × ${counts[m.id]}</span>
+      <span>${displayItemName(m)} × ${counts[m.id]}</span>
       <span>¥${(m.price * counts[m.id]).toLocaleString()}</span>
     </div>
   `).join('');
@@ -558,6 +573,12 @@ async function submitOrder() {
   if (!pickupTime) { showError('ピックアップ時間を選んでください'); return; }
   if (items.length === 0) { showError('商品を1つ以上選んでください'); return; }
 
+  const morningWithoutDrink = items.find(m => m.morning && !morningDrinks[m.id]);
+  if (morningWithoutDrink) {
+    showError('モーニングセットのドリンクを選んでください');
+    return;
+  }
+
   const total = items.reduce((s, m) => s + m.price * counts[m.id], 0);
   const yyyy = pickupDate.substring(0,4), mm = pickupDate.substring(5,7), dd = pickupDate.substring(8,10);
   const pickupDateFormatted = mm + '/' + dd;
@@ -565,7 +586,7 @@ async function submitOrder() {
     name, phone, pickupTime: `${pickupDateFormatted} ${pickupTime}`, total, lineUserId,
     items: items.map(m => ({
       emoji: m.emoji,
-      name: m.name,
+      name: displayItemName(m),
       count: counts[m.id],
       subtotal: (m.price * counts[m.id]).toLocaleString(),
     })),
