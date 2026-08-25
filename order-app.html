@@ -439,7 +439,7 @@ function buildDateOptions() {
       const day = d.getDate();
 
       // 2026年8月14日は休業
-      if (year === 2026 && month === 8 && day === 14) {
+      if (year === 2026 && month === 8 && (day === 14 || day === 31)) {
         d.setDate(d.getDate() + 1);
         continue;
       }
