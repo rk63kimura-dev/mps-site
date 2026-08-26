@@ -42,7 +42,7 @@ button{font-size:48px;padding:24px 70px;border-radius:24px;border:0;margin-top:3
 </section>
 
 <div class="list">
-  <h2>直近の注文</h2>
+  <h2>注文管理</h2>
   <div id="orders"></div>
 </div>
 
@@ -147,28 +147,171 @@ function extractPickup(text){
   return m ? m[2] : '';
 }
 
-function renderOrders(orders){
-  const box = document.getElementById('orders');
-  box.innerHTML = orders.slice().reverse().map(o => {
-    if(o.type === 'キャンセル'){
-      return `
-        <div class="order cancel">
-          <div class="top">⚠️ キャンセル希望</div>
-          <div class="items">👤 ${o.name || ''} 様　🕒 ${formatReceived(o.receivedAt)}</div>
-          <div>🕗 ${extractPickup(o.items)} 受取</div>
-          <div>💰 ${extractTotal(o.items)}</div>
-        </div>
-      `;
-    }
+function parseOrderDate(v){
+  if(!v) return null;
 
+  const s = String(v).trim();
+  let m;
+
+  // 8/25 のような形式
+  m = s.match(/^(\d{1,2})\/(\d{1,2})$/);
+  if(m){
+    const now = new Date();
+    return new Date(
+      now.getFullYear(),
+      Number(m[1]) - 1,
+      Number(m[2])
+    );
+  }
+
+  // 2026-08-25 / 2026/08/25
+  m = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+  if(m){
+    return new Date(
+      Number(m[1]),
+      Number(m[2]) - 1,
+      Number(m[3])
+    );
+  }
+
+  const d = new Date(v);
+  if(!isNaN(d.getTime())){
+    return new Date(
+      d.getFullYear(),
+      d.getMonth(),
+      d.getDate()
+    );
+  }
+
+  return null;
+}
+
+function dateOnly(d){
+  return new Date(
+    d.getFullYear(),
+    d.getMonth(),
+    d.getDate()
+  );
+}
+
+function orderSortValue(o){
+  const d = parseOrderDate(o.date);
+  if(!d) return Number.MAX_SAFE_INTEGER;
+
+  let h = 23;
+  let m = 59;
+
+  const timeText = formatTime(o.time);
+  const tm = String(timeText).match(/(\d{1,2}):(\d{2})/);
+
+  if(tm){
+    h = Number(tm[1]);
+    m = Number(tm[2]);
+  }
+
+  d.setHours(h, m, 0, 0);
+  return d.getTime();
+}
+
+function renderOrderCard(o){
+  if(o.type === 'キャンセル'){
     return `
-      <div class="order">
-        <div class="top"><span class="pickup-date">${formatOrderDate(o.date)}</span>${formatTime(o.time)}　${o.name || ''} 様　¥${o.total || ''}</div>
-        <div class="items">${o.items || ''}</div>
-        <div>受付：${formatReceived(o.receivedAt)}</div>
+      <div class="order cancel">
+        <div class="top">⚠️ キャンセル希望</div>
+        <div class="items">👤 ${o.name || ''} 様　🕒 ${formatReceived(o.receivedAt)}</div>
+        <div>🕗 ${extractPickup(o.items)} 受取</div>
+        <div>💰 ${extractTotal(o.items)}</div>
       </div>
     `;
-  }).join('');
+  }
+
+  return `
+    <div class="order">
+      <div class="top">
+        <span class="pickup-date">${formatOrderDate(o.date)}</span>
+        ${formatTime(o.time)}　${o.name || ''} 様　¥${o.total || ''}
+      </div>
+      <div class="items">${o.items || ''}</div>
+      <div>受付：${formatReceived(o.receivedAt)}</div>
+    </div>
+  `;
+}
+
+function renderOrderSection(title, list){
+  if(list.length === 0) return '';
+
+  return `
+    <div style="margin:28px 0 10px;">
+      <div style="
+        font-size:32px;
+        font-weight:bold;
+        padding:12px 16px;
+        background:rgba(255,255,255,0.14);
+        border-radius:12px;
+      ">${title}　${list.length}件</div>
+      ${list.map(renderOrderCard).join('')}
+    </div>
+  `;
+}
+
+function renderOrders(orders){
+  const box = document.getElementById('orders');
+
+  const today = dateOnly(new Date());
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const cancellations = [];
+  const todayOrders = [];
+  const tomorrowOrders = [];
+  const futureOrders = [];
+  const pastOrders = [];
+  const unknownOrders = [];
+
+  orders.forEach(o => {
+    if(o.type === 'キャンセル'){
+      cancellations.push(o);
+      return;
+    }
+
+    const d = parseOrderDate(o.date);
+
+    if(!d){
+      unknownOrders.push(o);
+      return;
+    }
+
+    const t = dateOnly(d).getTime();
+
+    if(t === today.getTime()){
+      todayOrders.push(o);
+    }else if(t === tomorrow.getTime()){
+      tomorrowOrders.push(o);
+    }else if(t > tomorrow.getTime()){
+      futureOrders.push(o);
+    }else{
+      pastOrders.push(o);
+    }
+  });
+
+  todayOrders.sort((a,b) => orderSortValue(a) - orderSortValue(b));
+  tomorrowOrders.sort((a,b) => orderSortValue(a) - orderSortValue(b));
+  futureOrders.sort((a,b) => orderSortValue(a) - orderSortValue(b));
+
+  // 過去は新しい日付が上
+  pastOrders.sort((a,b) => orderSortValue(b) - orderSortValue(a));
+
+  box.innerHTML =
+    renderOrderSection('⚠️ キャンセル希望', cancellations) +
+    renderOrderSection('🔴 今日の注文', todayOrders) +
+    renderOrderSection('🟡 明日の注文', tomorrowOrders) +
+    renderOrderSection('⚪ それ以降の予約', futureOrders) +
+    renderOrderSection('過去の注文', pastOrders) +
+    renderOrderSection('日付未設定', unknownOrders);
+
+  if(!box.innerHTML){
+    box.innerHTML = '<div style="padding:20px;">注文はありません</div>';
+  }
 }
 
 async function checkOrders(){
