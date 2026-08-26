@@ -356,22 +356,36 @@ const LIFF_ID = '2009748384-YPMycy7M';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
 
 const MENU = [
+  { id: 'morning_pork', emoji: '🌅', name: 'MORNING SET｜プルドポーク', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
+  { id: 'morning_tuna', emoji: '🐟', name: 'MORNING SET｜自家製ツナ', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
+  { id: 'morning_prosciutto', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
+
   { id: 'pork',     emoji: '🥩', name: 'プルドポークサンド',                 price: 550 },
   { id: 'pork_cheese', emoji: '🥩', name: 'プルドポークサンド＋チーズ',      price: 650, sub: true },
   { id: 'pork2',    emoji: '🥩', name: 'プルドポークサンド ダブル',           price: 800, note: '中身2倍', sub: true },
   { id: 'pork2_cheese', emoji: '🥩', name: 'プルドポークサンド ダブル＋チーズ', price: 900, sub: true },
-  { id: "salmon",  emoji: "🍋", name: "スモークサーモンとクリームチーズのサンド", price: 650 },
-  { id: "salmon_extra", emoji: "🍋", name: "サーモンエクストラ", price: 950 },
+  { id: "salmon",  emoji: "🍋", name: "スモークサーモンとクリームチーズのサンド", price: 650, soldout: true },
+  { id: "salmon_extra", emoji: "🍋", name: "サーモンエクストラ", price: 950, soldout: true },
   { id: "prosciutto", emoji: "🧀", name: "生ハム＆モッツアレラチーズ・バジルペースト", price: 800 },
+  { id: "premium_tuna", emoji: "🐟", name: "プレミアムツナ＆クリームチーズ", price: 900 },
   { id: 'focaccia', emoji: '🍞', name: 'フォカッチャお持ち帰り2個入り', price: 500 },
   { id: 'hotcoffee',  emoji: '☕', name: 'コーヒー',        price: 150, sub: true },
   { id: 'icecoffee',  emoji: '🧊', name: 'アイスコーヒー',   price: 150, sub: true },
+  { id: 'icecafeaulait', emoji: '🥛', name: 'アイスカフェオレ', price: 250, sub: true },
   { id: 'tea',        emoji: '🍵', name: '紅茶',            price: 150, sub: true },
   { id: 'icetea',     emoji: '🍵', name: 'アイスティー',     price: 150, sub: true },
   { id: 'lemonade', emoji: '🍋', name: '淡路島レモネード', price: 250, soldout: true },
   { id: 'lemonsquash', emoji: '🍋', name: '淡路島レモンスカッシュ', price: 250, soldout: true },];
 
 let counts = {};
+let morningDrinks = {};
+
+const MORNING_UPGRADES = {
+  morning_pork: 'チーズ入り',
+  morning_tuna: 'クリームチーズ入り',
+  morning_prosciutto: 'バジルペースト入り'
+};
+let morningUpgrades = {};
 let morningStock = 999;
 let lineUserId = null;
 let lineDisplayName = null;
@@ -379,6 +393,11 @@ let lineDisplayName = null;
 MENU.forEach(m => counts[m.id] = 0);
 
 async function initLiff() {
+  if (location.protocol === 'file:') {
+    document.getElementById('initScreen').classList.add('hide');
+    return;
+  }
+
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) {
@@ -432,7 +451,7 @@ function buildDateOptions() {
       const day = d.getDate();
 
       // 2026年8月14日は休業
-      if (year === 2026 && month === 8 && day === 14) {
+      if (year === 2026 && month === 8 && (day === 14 || day === 31)) {
         d.setDate(d.getDate() + 1);
         continue;
       }
@@ -475,8 +494,8 @@ function onDateChange() {
     opt.value = label;
     opt.textContent = label;
     const cutoff = now.getHours() > 9 || (now.getHours() === 9 && now.getMinutes() >= 45);
-    const nowPlus15 = new Date(now.getTime() + 20 * 60000);
-    if (isToday && (cutoff || h < nowPlus15.getHours() || (h === nowPlus15.getHours() && m <= nowPlus15.getMinutes()))) {
+    const nowPlus15 = new Date(now.getTime() + 15 * 60000);
+    if (isToday && (cutoff || h < nowPlus15.getHours() || (h === nowPlus15.getHours() && m < nowPlus15.getMinutes()))) {
       opt.disabled = true;
       opt.textContent = label + '（受付終了）';
     }
@@ -493,6 +512,29 @@ function renderMenu() {
       <div class="item-info">
         <div class="item-name">${item.name}</div>
         ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
+        ${item.morning ? `
+          <select
+            id="drink-${item.id}"
+            onchange="setMorningDrink('${item.id}', this.value)"
+            style="margin-top:10px;padding:9px 10px;border:1px solid #d9c8b5;border-radius:8px;background:#fffaf5;font-size:14px;width:100%;max-width:280px;"
+          >
+            <option value="">ドリンクを選んでください</option>
+            <option value="ホットコーヒー">☕ ホットコーヒー</option>
+            <option value="アイスコーヒー">🧊 アイスコーヒー</option>
+            <option value="紅茶">🍵 紅茶</option>
+            <option value="アイスティー">🧊 アイスティー</option>
+            <option value="アイスオーレ">🥛 アイスオーレ（＋¥100）</option>
+          </select>
+
+          <select
+            id="upgrade-${item.id}"
+            onchange="setMorningUpgrade('${item.id}', this.value)"
+            style="margin-top:7px;padding:9px 10px;border:1px solid #d9c8b5;border-radius:8px;background:#fffaf5;font-size:14px;width:100%;max-width:280px;"
+          >
+            <option value="">追加トッピングなし</option>
+            <option value="${MORNING_UPGRADES[item.id]}">${MORNING_UPGRADES[item.id]}（＋¥100）</option>
+          </select>
+        ` : ''}
         <div class="item-price">${item.soldout ? '売り切れ' : '¥' + item.price.toLocaleString()}</div>
       </div>
       <div class="counter">
@@ -502,6 +544,33 @@ function renderMenu() {
       </div>
     </div>
   `).join('');
+}
+
+function setMorningDrink(id, value) {
+  morningDrinks[id] = value;
+  updateSummary();
+}
+
+function setMorningUpgrade(id, value) {
+  morningUpgrades[id] = value;
+  updateSummary();
+}
+
+function getUnitPrice(item) {
+  let price = item.price;
+  if (item.morning && morningDrinks[item.id] === 'アイスオーレ') price += 100;
+  if (item.morning && morningUpgrades[item.id]) price += 100;
+  return price;
+}
+
+function displayItemName(item) {
+  if (!item.morning) return item.name;
+
+  const options = [];
+  if (morningUpgrades[item.id]) options.push(morningUpgrades[item.id]);
+  if (morningDrinks[item.id]) options.push(morningDrinks[item.id]);
+
+  return item.name + (options.length ? '＋' + options.join('＋') : '');
 }
 
 function change(id, delta) {
@@ -514,14 +583,14 @@ function change(id, delta) {
 
 function updateSummary() {
   const items = MENU.filter(m => counts[m.id] > 0);
-  const total = items.reduce((s, m) => s + m.price * counts[m.id], 0);
+  const total = items.reduce((s, m) => s + getUnitPrice(m) * counts[m.id], 0);
   const summary = document.getElementById('orderSummary');
   if (items.length === 0) { summary.classList.remove('visible'); return; }
   summary.classList.add('visible');
   document.getElementById('summaryItems').innerHTML = items.map(m => `
     <div class="summary-row">
-      <span>${m.name} × ${counts[m.id]}</span>
-      <span>¥${(m.price * counts[m.id]).toLocaleString()}</span>
+      <span>${displayItemName(m)} × ${counts[m.id]}</span>
+      <span>¥${(getUnitPrice(m) * counts[m.id]).toLocaleString()}</span>
     </div>
   `).join('');
   document.getElementById('summaryTotal').textContent = '¥' + total.toLocaleString();
@@ -541,16 +610,22 @@ async function submitOrder() {
   if (!pickupTime) { showError('ピックアップ時間を選んでください'); return; }
   if (items.length === 0) { showError('商品を1つ以上選んでください'); return; }
 
-  const total = items.reduce((s, m) => s + m.price * counts[m.id], 0);
+  const morningWithoutDrink = items.find(m => m.morning && !morningDrinks[m.id]);
+  if (morningWithoutDrink) {
+    showError('モーニングセットのドリンクを選んでください');
+    return;
+  }
+
+  const total = items.reduce((s, m) => s + getUnitPrice(m) * counts[m.id], 0);
   const yyyy = pickupDate.substring(0,4), mm = pickupDate.substring(5,7), dd = pickupDate.substring(8,10);
   const pickupDateFormatted = mm + '/' + dd;
   const payload = {
     name, phone, pickupTime: `${pickupDateFormatted} ${pickupTime}`, total, lineUserId,
     items: items.map(m => ({
       emoji: m.emoji,
-      name: m.name,
+      name: displayItemName(m),
       count: counts[m.id],
-      subtotal: (m.price * counts[m.id]).toLocaleString(),
+      subtotal: (getUnitPrice(m) * counts[m.id]).toLocaleString(),
     })),
   };
 
