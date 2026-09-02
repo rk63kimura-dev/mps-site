@@ -270,7 +270,14 @@ function renderOrders(orders){
 
   orders.forEach(o => {
     if(o.type === 'キャンセル'){
-      cancellations.push(o);
+      const pickup = String(o.items || '').match(/ピックアップ\s*[:：]?\s*((?:\d{4}[-\/]\d{1,2}[-\/]\d{1,2}|\d{1,2}\/\d{1,2}))(?!\d)/);
+      const d = parseOrderDate(pickup && pickup[1]) ||
+                parseOrderDate(o.date) || parseOrderDate(o.receivedAt);
+      if(d && dateOnly(d).getTime() < today.getTime()){
+        pastOrders.push({...o, date: d});
+      }else{
+        cancellations.push(o);
+      }
       return;
     }
 
