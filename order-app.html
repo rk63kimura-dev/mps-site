@@ -360,14 +360,22 @@ const MENU = [
   { id: 'morning_tuna', emoji: '🐟', name: 'MORNING SET｜自家製ツナ', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
   { id: 'morning_prosciutto', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・お持ち帰りOK' },
 
-  { id: 'pork',     emoji: '🥩', name: 'プルドポークサンド',                 price: 550 },
-  { id: 'pork_cheese', emoji: '🥩', name: 'プルドポークサンド＋チーズ',      price: 650, sub: true },
-  { id: 'pork2',    emoji: '🥩', name: 'プルドポークサンド ダブル',           price: 800, note: '中身2倍', sub: true },
-  { id: 'pork2_cheese', emoji: '🥩', name: 'プルドポークサンド ダブル＋チーズ', price: 900, sub: true },
-  { id: "salmon",  emoji: "🍋", name: "スモークサーモンとクリームチーズのサンド", price: 650, soldout: false },
-  { id: "salmon_extra", emoji: "🍋", name: "サーモンエクストラ", price: 950, soldout: false },
-  { id: "prosciutto", emoji: "🧀", name: "生ハム＆モッツアレラチーズ・バジルペースト", price: 800 },
-  { id: "premium_tuna", emoji: "🐟", name: "プレミアムツナ＆クリームチーズ", price: 900 },
+  { id: 'half_pork', emoji: '🥩', name: '【ハーフ】プルドポーク', price: 300, size: 'half' },
+  { id: 'half_pork_cheese', emoji: '🥩', name: '【ハーフ】プルドポーク＆チーズ', price: 350, size: 'half' },
+  { id: 'half_tuna', emoji: '🐟', name: '【ハーフ】自家製ツナ', price: 450, size: 'half' },
+  { id: 'half_tuna_creamcheese', emoji: '🐟', name: '【ハーフ】自家製ツナ＆ホイップクリームチーズ', price: 500, size: 'half' },
+  { id: 'half_salmon', emoji: '🍋', name: '【ハーフ】サーモン＆クリームチーズ', price: 400, size: 'half' },
+  { id: 'half_prosciutto', emoji: '🧀', name: '【ハーフ】生ハム＆モッツァレラ', price: 450, size: 'half' },
+
+
+  { id: 'pork',     emoji: '🥩', name: '【レギュラー】プルドポークサンド',                 price: 550, size: 'regular' },
+  { id: 'pork_cheese', emoji: '🥩', name: '【レギュラー】プルドポークサンド＋チーズ',      price: 650, sub: true, size: 'regular' },
+  { id: 'pork2',    emoji: '🥩', name: '【レギュラー】プルドポークサンド ダブル',           price: 800, note: '中身2倍', sub: true, size: 'regular' },
+  { id: 'pork2_cheese', emoji: '🥩', name: '【レギュラー】プルドポークサンド ダブル＋チーズ', price: 900, sub: true, size: 'regular' },
+  { id: "salmon",  emoji: "🍋", name: '【レギュラー】スモークサーモンとクリームチーズのサンド', price: 650, soldout: false, size: 'regular' },
+  { id: "salmon_extra", emoji: "🍋", name: '【レギュラー】サーモンエクストラ', price: 950, soldout: false, size: 'regular' },
+  { id: "prosciutto", emoji: "🧀", name: '【レギュラー】生ハム＆モッツアレラチーズ・バジルペースト', price: 800, size: 'regular' },
+  { id: "premium_tuna", emoji: "🐟", name: '【レギュラー】プレミアムツナ＆クリームチーズ', price: 900, size: 'regular' },
   { id: 'focaccia', emoji: '🍞', name: 'フォカッチャお持ち帰り2個入り', price: 500 },
   { id: 'hotcoffee',  emoji: '☕', name: 'コーヒー',        price: 150, sub: true },
   { id: 'icecoffee',  emoji: '🧊', name: 'アイスコーヒー',   price: 150, sub: true },
@@ -506,44 +514,92 @@ function onDateChange() {
 }
 
 function renderMenu() {
-  document.getElementById('menuList').innerHTML = MENU.map(item => `
-    <div class="menu-item${item.sub ? ' sub' : ''}">
-      <div class="item-emoji">${item.emoji}</div>
-      <div class="item-info">
-        <div class="item-name">${item.name}</div>
-        ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
-        ${item.morning ? `
-          <select
-            id="drink-${item.id}"
-            onchange="setMorningDrink('${item.id}', this.value)"
-            style="margin-top:10px;padding:9px 10px;border:1px solid #d9c8b5;border-radius:8px;background:#fffaf5;font-size:14px;width:100%;max-width:280px;"
-          >
-            <option value="">ドリンクを選んでください</option>
-            <option value="ホットコーヒー">☕ ホットコーヒー</option>
-            <option value="アイスコーヒー">🧊 アイスコーヒー</option>
-            <option value="紅茶">🍵 紅茶</option>
-            <option value="アイスティー">🧊 アイスティー</option>
-            <option value="アイスオーレ">🥛 アイスオーレ（＋¥100）</option>
-          </select>
 
-          <select
-            id="upgrade-${item.id}"
-            onchange="setMorningUpgrade('${item.id}', this.value)"
-            style="margin-top:7px;padding:9px 10px;border:1px solid #d9c8b5;border-radius:8px;background:#fffaf5;font-size:14px;width:100%;max-width:280px;"
-          >
-            <option value="">追加トッピングなし</option>
-            <option value="${MORNING_UPGRADES[item.id]}">${MORNING_UPGRADES[item.id]}（＋¥100）</option>
-          </select>
-        ` : ''}
-        <div class="item-price">${item.soldout ? '売り切れ' : '¥' + item.price.toLocaleString()}</div>
+  let lastGroup = '';
+
+  const sectionTitles = {
+    morning: '🌅 モーニングセット',
+    half: '🥪 ハーフサンド',
+    regular: '🥪 レギュラーサンド',
+    other: '☕ ドリンク・その他'
+  };
+
+  document.getElementById('menuList').innerHTML = MENU.map(item => {
+
+    const group = item.morning
+      ? 'morning'
+      : (item.size === 'half'
+          ? 'half'
+          : (item.size === 'regular' ? 'regular' : 'other'));
+
+    let sectionHeader = '';
+
+    if (group !== lastGroup) {
+      lastGroup = group;
+
+      sectionHeader = `
+        <div style="
+          margin:28px 0 12px;
+          padding:13px 16px;
+          background:#3a241a;
+          color:white;
+          border-radius:12px;
+          font-size:20px;
+          font-weight:bold;
+          letter-spacing:0.03em;
+        ">
+          ${sectionTitles[group]}
+        </div>
+      `;
+    }
+
+    return `
+      ${sectionHeader}
+
+      <div class="menu-item${item.sub ? ' sub' : ''}">
+        <div class="item-emoji">${item.emoji}</div>
+
+        <div class="item-info">
+          <div class="item-name">${item.name.replace(/^【(?:ハーフ|レギュラー)】/, "")}${item.size === "half" ? "（ハーフ）" : ""}</div>
+
+          ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
+
+          ${item.morning ? `
+            <select
+              id="drink-${item.id}"
+              onchange="setMorningDrink('${item.id}', this.value)"
+              style="margin-top:10px;padding:9px 10px;border:1px solid #d9c8b5;border-radius:8px;background:#fffaf5;font-size:14px;width:100%;max-width:280px;"
+            >
+              <option value="">ドリンクを選んでください</option>
+              <option value="ホットコーヒー">☕ ホットコーヒー</option>
+              <option value="アイスコーヒー">🧊 アイスコーヒー</option>
+              <option value="紅茶">🍵 紅茶</option>
+              <option value="アイスティー">🧊 アイスティー</option>
+              <option value="アイスオーレ">🥛 アイスオーレ（＋¥100）</option>
+            </select>
+
+            <select
+              id="upgrade-${item.id}"
+              onchange="setMorningUpgrade('${item.id}', this.value)"
+              style="margin-top:7px;padding:9px 10px;border:1px solid #d9c8b5;border-radius:8px;background:#fffaf5;font-size:14px;width:100%;max-width:280px;"
+            >
+              <option value="">追加トッピングなし</option>
+              <option value="${MORNING_UPGRADES[item.id]}">${MORNING_UPGRADES[item.id]}（＋¥100）</option>
+            </select>
+          ` : ''}
+
+          <div class="item-price">${item.soldout ? '売り切れ' : '¥' + item.price.toLocaleString()}</div>
+        </div>
+
+        <div class="counter">
+          <button class="counter-btn minus" onclick="change('${item.id}', -1)" ${item.soldout ? 'disabled' : ''}>−</button>
+          <div class="counter-value" id="count-${item.id}">0</div>
+          <button class="counter-btn plus" onclick="change('${item.id}', +1)" ${item.soldout ? 'disabled' : ''}>＋</button>
+        </div>
       </div>
-      <div class="counter">
-        <button class="counter-btn minus" onclick="change('${item.id}', -1)" ${item.soldout ? 'disabled' : ''}>−</button>
-        <div class="counter-value" id="count-${item.id}">0</div>
-        <button class="counter-btn plus" onclick="change('${item.id}', +1)" ${item.soldout ? 'disabled' : ''}>＋</button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+
 }
 
 function setMorningDrink(id, value) {
