@@ -452,7 +452,7 @@ function buildDateOptions() {
       const day = d.getDate();
 
       // 2026年8月14日は休業
-      if (year === 2026 && ((month === 8 && (day === 14 || day === 31)) || (month === 9 && day >= 9 && day <= 14))) {
+      if (year === 2026 && ((month === 8 && (day === 14 || day === 31)) || (month === 9 && day >= 9 && day <= 14) || (month === 10 && day === 1))) {
         d.setDate(d.getDate() + 1);
         continue;
       }
