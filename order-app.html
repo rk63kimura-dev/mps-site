@@ -438,6 +438,52 @@ async function loadMorningStock() {
   } catch(e) {}
 }
 
+function isClosedDate(year, month, day) {
+  return year === 2026 && (
+    (month === 8 && (day === 14 || day === 31)) ||
+    (month === 9 && day >= 9 && day <= 14) ||
+    (month === 10 && day === 1)
+  );
+}
+
+function updateTodayBanner() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
+  const day = today.getDate();
+
+  if (!isClosedDate(year, month, day)) return;
+
+  const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+  const tomorrow = new Date(today);
+  do {
+    tomorrow.setDate(tomorrow.getDate() + 1);
+  } while (
+    tomorrow.getDay() === 0 ||
+    tomorrow.getDay() === 6 ||
+    isClosedDate(tomorrow.getFullYear(), tomorrow.getMonth() + 1, tomorrow.getDate())
+  );
+
+  const banner = document.getElementById('morningStockBanner');
+  if (!banner) return;
+
+  banner.style.background = '#4a2b24';
+  banner.innerHTML = `
+    <div style="padding-right:12px;">
+      <div style="color:#e8c99a;font-size:11px;letter-spacing:0.12em;margin-bottom:5px;">本日の営業について</div>
+      <div style="color:white;font-size:16px;font-weight:500;line-height:1.5;">
+        本日 ${month}/${day}（${dayNames[today.getDay()]}）は臨時休業です
+      </div>
+      <div style="color:rgba(255,255,255,0.65);font-size:12px;margin-top:5px;line-height:1.5;">
+        ${tomorrow.getMonth() + 1}/${tomorrow.getDate()}（${dayNames[tomorrow.getDay()]}）以降のご予約は受付中です
+      </div>
+    </div>
+    <div style="flex-shrink:0;padding:7px 12px;border-radius:20px;font-size:12px;background:rgba(192,57,43,0.28);color:#ffb0a8;">
+      本日休業
+    </div>
+  `;
+}
+
 function buildDateOptions() {
   const select = document.getElementById('pickupDate');
   const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
@@ -452,7 +498,7 @@ function buildDateOptions() {
       const day = d.getDate();
 
       // 2026年8月14日は休業
-      if (year === 2026 && ((month === 8 && (day === 14 || day === 31)) || (month === 9 && day >= 9 && day <= 14) || (month === 10 && day === 1))) {
+      if (isClosedDate(year, month, day)) {
         d.setDate(d.getDate() + 1);
         continue;
       }
@@ -770,6 +816,7 @@ function resetOrder() {
 }
 
 renderMenu();
+updateTodayBanner();
 buildDateOptions();
 initLiff();
 loadMorningStock();
