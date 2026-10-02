@@ -443,7 +443,7 @@ function isClosedDate(year, month, day) {
   return year === 2026 && (
     (month === 8 && (day === 14 || day === 31)) ||
     (month === 9 && day >= 9 && day <= 14) ||
-    (month === 10 && day === 1)
+    (month === 10 && (day === 1 || day === 12 || day === 18 || day === 24))
   );
 }
 
@@ -460,8 +460,6 @@ function updateTodayBanner() {
   do {
     tomorrow.setDate(tomorrow.getDate() + 1);
   } while (
-    tomorrow.getDay() === 0 ||
-    tomorrow.getDay() === 6 ||
     isClosedDate(tomorrow.getFullYear(), tomorrow.getMonth() + 1, tomorrow.getDate())
   );
 
@@ -493,32 +491,30 @@ function buildDateOptions() {
   let d = new Date(today);
   while (count < 3) {
     const dow = d.getDay();
-    if (dow >= 1 && dow <= 5) { // 月〜金のみ
-      const year = d.getFullYear();
-      const month = d.getMonth() + 1;
-      const day = d.getDate();
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
 
-      // 2026年8月14日は休業
-      if (isClosedDate(year, month, day)) {
-        d.setDate(d.getDate() + 1);
-        continue;
-      }
-
-      const mm = String(month).padStart(2, '0');
-      const dd = String(day).padStart(2, '0');
-      const label = `${mm}/${dd}（${dayNames[dow]}）`;
-      const value = `${d.getFullYear()}-${mm}-${dd}`;
-      const opt = document.createElement('option');
-      opt.value = value;
-      // 今日なら「今日」を付ける
-      if (d.toDateString() === today.toDateString()) {
-        opt.textContent = `今日 ${label}`;
-      } else {
-        opt.textContent = label;
-      }
-      select.appendChild(opt);
-      count++;
+    if (isClosedDate(year, month, day)) {
+      d.setDate(d.getDate() + 1);
+      continue;
     }
+
+    const mm = String(month).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    const weekendNote = (dow === 0 || dow === 6) ? '・通常メニューのみ' : '';
+    const label = `${mm}/${dd}（${dayNames[dow]}）${weekendNote}`;
+    const value = `${d.getFullYear()}-${mm}-${dd}`;
+    const opt = document.createElement('option');
+    opt.value = value;
+    // 今日なら「今日」を付ける
+    if (d.toDateString() === today.toDateString()) {
+      opt.textContent = `今日 ${label}`;
+    } else {
+      opt.textContent = label;
+    }
+    select.appendChild(opt);
+    count++;
     d.setDate(d.getDate() + 1);
   }
 }
@@ -731,10 +727,23 @@ async function submitOrder() {
   if (items.length === 0) { showError('商品を1つ以上選んでください'); return; }
 
  const hasMorningSet = items.some(m => m.morning);
-if (hasMorningSet && pickupTime > '09:00') {
-  showError('モーニングセットのピックアップは9:00までです');
-  return;
-} const morningWithoutDrink = items.find(m => m.morning && !morningDrinks[m.id]);
+
+if (hasMorningSet) {
+  const [py, pm, pd] = pickupDate.split('-').map(Number);
+  const pickupDow = new Date(py, pm - 1, pd).getDay();
+
+  if (pickupDow === 0 || pickupDow === 6) {
+    showError('土日はモーニングセットの予約はできません。通常メニューをご利用ください');
+    return;
+  }
+
+  if (pickupTime > '09:00') {
+    showError('モーニングセットのピックアップは9:00までです');
+    return;
+  }
+}
+
+const morningWithoutDrink = items.find(m => m.morning && !morningDrinks[m.id]);
   if (morningWithoutDrink) {
     showError('モーニングセットのドリンクを選んでください');
     return;
