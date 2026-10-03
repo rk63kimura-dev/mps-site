@@ -355,10 +355,16 @@
 const LIFF_ID = '2009748384-YPMycy7M';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
 
+const todayForMenu = new Date();
+const prosciuttoSoldOutToday =
+  todayForMenu.getFullYear() === 2026 &&
+  todayForMenu.getMonth() === 9 &&
+  todayForMenu.getDate() === 4;
+
 const MENU = [
   { id: 'morning_pork', emoji: '🌅', name: 'MORNING SET｜プルドポーク', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
   { id: 'morning_salmon', emoji: '🐟', name: 'MORNING SET｜スモークサーモン＆クリームチーズ', price: 650, morning: true, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
-  { id: 'morning_prosciutto', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
+  { id: 'morning_prosciutto', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ', price: 550, morning: true, soldout: prosciuttoSoldOutToday, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
 
 
   { id: 'pork', emoji: '🥩', name: '【レギュラー】プルドポークサンド', price: 550, size: 'regular' },
@@ -366,7 +372,7 @@ const MENU = [
   { id: 'pork2', emoji: '🥩', name: '【レギュラー】プルドポークサンド ダブル', price: 800, note: '中身2倍', sub: true, size: 'regular' },
   { id: 'pork2_cheese', emoji: '🥩', name: '【レギュラー】プルドポークサンド ダブル＋チーズ', price: 900, sub: true, size: 'regular' },
   { id: 'salmon', emoji: '🍋', name: '【レギュラー】厚切りスモークサーモンとクリームチーズ', price: 850, soldout: false, size: 'regular' },
-  { id: 'prosciutto', emoji: '🧀', name: '【レギュラー】生ハム＆モッツアレラチーズ・バジルペースト', price: 800, size: 'regular' },
+  { id: 'prosciutto', emoji: '🧀', name: '【レギュラー】生ハム＆モッツアレラチーズ・バジルペースト', price: 800, soldout: prosciuttoSoldOutToday, size: 'regular' },
 
   { id: 'focaccia', emoji: '🍞', name: 'フォカッチャお持ち帰り2個入り', price: 500 },
 
