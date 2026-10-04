@@ -395,6 +395,9 @@ const MORNING_UPGRADES = {
 };
 let morningUpgrades = {};
 let morningStock = 999;
+const FOCACCIA_DAILY_LIMIT = 3;
+let focacciaRemaining = FOCACCIA_DAILY_LIMIT;
+let focacciaStockDate = '';
 let lineUserId = null;
 let lineDisplayName = null;
 
@@ -525,14 +528,21 @@ function buildDateOptions() {
   }
 }
 
-function onDateChange() {
+async function onDateChange() {
   const dateVal = document.getElementById('pickupDate').value;
   const timeSelect = document.getElementById('pickupTime');
   timeSelect.innerHTML = '<option value="">時間を選んでください</option>';
   if (!dateVal) {
     timeSelect.disabled = true;
+    focacciaRemaining = FOCACCIA_DAILY_LIMIT;
+    focacciaStockDate = '';
+    counts.focaccia = 0;
+    renderMenu();
+    updateSummary();
     return;
   }
+
+  await loadFocacciaStock(dateVal);
   timeSelect.disabled = false;
   const now = new Date();
   const todayStr = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
@@ -553,6 +563,44 @@ function onDateChange() {
     m += 15;
     if (m >= 60) { m -= 60; h++; }
   }
+}
+
+async function getFocacciaStock(dateVal) {
+  if (!dateVal) {
+    return { remaining: FOCACCIA_DAILY_LIMIT, limit: FOCACCIA_DAILY_LIMIT };
+  }
+
+  try {
+    const res = await fetch(
+      GAS_URL + '?type=focacciaStock&date=' + encodeURIComponent(dateVal) + '&_=' + Date.now()
+    );
+    const data = await res.json();
+
+    if (data && data.ok !== false && Number.isFinite(Number(data.remaining))) {
+      return {
+        remaining: Math.max(0, Number(data.remaining)),
+        limit: Number(data.limit) || FOCACCIA_DAILY_LIMIT
+      };
+    }
+  } catch (e) {
+    console.warn('Focaccia stock load failed:', e);
+  }
+
+  // GAS側の新しい在庫APIがまだ反映されていない時の安全な初期値
+  return { remaining: FOCACCIA_DAILY_LIMIT, limit: FOCACCIA_DAILY_LIMIT };
+}
+
+async function loadFocacciaStock(dateVal) {
+  const data = await getFocacciaStock(dateVal);
+  focacciaRemaining = data.remaining;
+  focacciaStockDate = dateVal;
+
+  if ((counts.focaccia || 0) > focacciaRemaining) {
+    counts.focaccia = focacciaRemaining;
+  }
+
+  renderMenu();
+  updateSummary();
 }
 
 function renderMenu() {
@@ -595,6 +643,17 @@ function renderMenu() {
       `;
     }
 
+    const dynamicSoldOut =
+      item.soldout ||
+      (item.id === 'focaccia' && focacciaRemaining <= 0);
+
+    const dynamicNote =
+      item.id === 'focaccia'
+        ? (focacciaStockDate
+            ? `1日3セット限定・残り${focacciaRemaining}セット`
+            : '1日3セット限定')
+        : item.note;
+
     return `
       ${sectionHeader}
 
@@ -604,7 +663,7 @@ function renderMenu() {
         <div class="item-info">
           <div class="item-name">${item.name.replace(/^【(?:ハーフ|レギュラー)】/, "")}${item.size === "half" ? "（ハーフ）" : ""}</div>
 
-          ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
+          ${dynamicNote ? `<div class="item-note">${dynamicNote}</div>` : ''}
 
           ${item.morning ? `
             <select
@@ -635,13 +694,13 @@ function renderMenu() {
 ` : ''}
           ` : ''}
 
-          <div class="item-price">${item.soldout ? '売り切れ' : '¥' + item.price.toLocaleString()}</div>
+          <div class="item-price">${dynamicSoldOut ? '売り切れ' : '¥' + item.price.toLocaleString()}</div>
         </div>
 
         <div class="counter">
-          <button class="counter-btn minus" onclick="change('${item.id}', -1)" ${item.soldout ? 'disabled' : ''}>−</button>
-          <div class="counter-value" id="count-${item.id}">0</div>
-          <button class="counter-btn plus" onclick="change('${item.id}', +1)" ${item.soldout ? 'disabled' : ''}>＋</button>
+          <button class="counter-btn minus" onclick="change('${item.id}', -1)" ${dynamicSoldOut ? 'disabled' : ''}>−</button>
+          <div class="counter-value" id="count-${item.id}">${counts[item.id] || 0}</div>
+          <button class="counter-btn plus" onclick="change('${item.id}', +1)" ${dynamicSoldOut ? 'disabled' : ''}>＋</button>
         </div>
       </div>
     `;
@@ -696,6 +755,24 @@ function displayItemName(item) {
 }
 
 function change(id, delta) {
+  if (id === 'focaccia' && delta > 0) {
+    const pickupDate = document.getElementById('pickupDate').value;
+
+    if (!pickupDate) {
+      showError('フォカッチャをご注文の場合は、先にピックアップ日付を選んでください');
+      return;
+    }
+
+    if ((counts[id] || 0) >= focacciaRemaining) {
+      showError(
+        focacciaRemaining <= 0
+          ? 'この日のフォカッチャは予約分が売り切れました'
+          : 'この日のフォカッチャ予約は残り' + focacciaRemaining + 'セットです'
+      );
+      return;
+    }
+  }
+
   counts[id] = Math.max(0, counts[id] + delta);
   const el = document.getElementById('count-' + id);
   el.textContent = counts[id];
@@ -755,11 +832,29 @@ const morningWithoutDrink = items.find(m => m.morning && !morningDrinks[m.id]);
     return;
   }
 
+  const focacciaQty = counts.focaccia || 0;
+  if (focacciaQty > 0) {
+    const latestFocaccia = await getFocacciaStock(pickupDate);
+    focacciaRemaining = latestFocaccia.remaining;
+    focacciaStockDate = pickupDate;
+
+    if (focacciaQty > focacciaRemaining) {
+      renderMenu();
+      updateSummary();
+      showError(
+        focacciaRemaining <= 0
+          ? '申し訳ありません。この日のフォカッチャ予約分は売り切れました'
+          : '申し訳ありません。この日のフォカッチャ予約は残り' + focacciaRemaining + 'セットです'
+      );
+      return;
+    }
+  }
+
   const total = items.reduce((s, m) => s + getUnitPrice(m) * counts[m.id], 0);
   const yyyy = pickupDate.substring(0,4), mm = pickupDate.substring(5,7), dd = pickupDate.substring(8,10);
   const pickupDateFormatted = mm + '/' + dd;
   const payload = {
-    name, phone, pickupTime: `${pickupDateFormatted} ${pickupTime}`, total, lineUserId,
+    name, phone, pickupDate, pickupTime: `${pickupDateFormatted} ${pickupTime}`, total, lineUserId,
     items: items.map(m => ({
       emoji: m.emoji,
       name: displayItemName(m),
