@@ -774,9 +774,16 @@ function change(id, delta) {
   }
 
   counts[id] = Math.max(0, counts[id] + delta);
-  const el = document.getElementById('count-' + id);
-  el.textContent = counts[id];
-  el.className = 'counter-value' + (counts[id] > 0 ? ' active' : '');
+
+  // フォカッチャの「あと○セット選べます」表示も数量変更のたびに更新
+  if (id === 'focaccia') {
+    renderMenu();
+  } else {
+    const el = document.getElementById('count-' + id);
+    el.textContent = counts[id];
+    el.className = 'counter-value' + (counts[id] > 0 ? ' active' : '');
+  }
+
   updateSummary();
 }
 
