@@ -399,6 +399,7 @@ const FOCACCIA_DAILY_LIMIT = 3;
 let focacciaRemaining = FOCACCIA_DAILY_LIMIT;
 let focacciaStockDate = '';
 let lineUserId = null;
+let submitInProgress = false;
 let lineDisplayName = null;
 
 MENU.forEach(m => counts[m.id] = 0);
@@ -803,6 +804,15 @@ function updateSummary() {
 }
 
 async function submitOrder() {
+  if (submitInProgress) return;
+
+  submitInProgress = true;
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.classList.add('sending');
+
+  try {
   const name = document.getElementById('nameInput').value.trim();
   const phone = document.getElementById('phoneInput').value.trim();
   const pickupDate = document.getElementById('pickupDate').value;
@@ -870,11 +880,6 @@ const morningWithoutDrink = items.find(m => m.morning && !morningDrinks[m.id]);
     })),
   };
 
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.classList.add('sending');
-
-  try {
     await fetch(GAS_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -885,6 +890,7 @@ const morningWithoutDrink = items.find(m => m.morning && !morningDrinks[m.id]);
   } catch (e) {
     showError('通信エラーが発生しました。ネットワークを確認してください。');
   } finally {
+    submitInProgress = false;
     btn.disabled = false;
     btn.classList.remove('sending');
   }
