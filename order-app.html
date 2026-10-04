@@ -650,7 +650,7 @@ function renderMenu() {
     const dynamicNote =
       item.id === 'focaccia'
         ? (focacciaStockDate
-            ? `1日3セット限定・残り${focacciaRemaining}セット`
+            ? `1日3セット限定・あと${Math.max(0, focacciaRemaining - (counts.focaccia || 0))}セット選べます`
             : '1日3セット限定')
         : item.note;
 
@@ -767,7 +767,7 @@ function change(id, delta) {
       showError(
         focacciaRemaining <= 0
           ? 'この日のフォカッチャは予約分が売り切れました'
-          : 'この日のフォカッチャ予約は残り' + focacciaRemaining + 'セットです'
+          : 'この日は最大' + focacciaRemaining + 'セットまでご注文いただけます'
       );
       return;
     }
