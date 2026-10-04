@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mother's Peace — Focaccia Take Out</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f5f0e8;--warm:#e8ddd0;--brown:#5c4033;--dark:#2a1f1a;
+  --accent:#c8955a;--light:#e8c99a;--text:#3a2e28;--muted:#8a7060;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Noto Sans JP',sans-serif;background:var(--cream);color:var(--text);
+  min-height:100vh;padding-bottom:120px;
+}
+header{
+  background:var(--dark);padding:24px 20px 22px;text-align:center;color:white;
+}
+.brand{font-family:'Cormorant Garamond',serif;font-size:23px;color:var(--light);letter-spacing:.12em}
+.sub{font-size:10px;letter-spacing:.25em;color:rgba(255,255,255,.45);margin-top:4px}
+.title{font-size:20px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)}
+.title small{display:block;font-size:11px;font-weight:300;color:rgba(255,255,255,.55);margin-top:5px}
+.card{
+  background:white;margin:16px;border:1px solid var(--warm);border-radius:14px;padding:18px;
+}
+.product{display:flex;align-items:center;gap:14px}
+.emoji{font-size:38px}
+.product-info{flex:1}
+.product-name{font-size:18px;color:var(--dark);line-height:1.45}
+.price{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--brown);margin-top:3px}
+.stock{font-size:12px;color:var(--muted);margin-top:4px}
+.counter-row{
+  display:flex;align-items:center;justify-content:space-between;margin-top:18px;
+  padding-top:16px;border-top:1px solid var(--warm);
+}
+.counter-label{font-size:13px;color:var(--muted)}
+.counter{
+  display:flex;align-items:center;background:var(--cream);border:1px solid var(--warm);
+  border-radius:28px;overflow:hidden;
+}
+.counter button{
+  width:50px;height:46px;border:0;background:transparent;font-size:26px;color:var(--accent);
+}
+.counter button:disabled{opacity:.3}
+.count{width:38px;text-align:center;font-size:19px}
+.field{margin-top:16px}
+label{display:block;font-size:11px;letter-spacing:.16em;color:var(--muted);margin-bottom:8px}
+input,select{
+  width:100%;border:0;border-bottom:1.5px solid var(--warm);background:transparent;
+  padding:8px 2px 10px;font-family:'Noto Sans JP',sans-serif;font-size:16px;color:var(--dark);
+  outline:none;
+}
+input:focus,select:focus{border-bottom-color:var(--accent)}
+.summary{
+  margin:0 16px 12px;padding:14px 16px;border:1px dashed var(--light);border-radius:12px;
+  background:rgba(200,149,90,.08);display:none;
+}
+.summary.show{display:block}
+.summary-line{display:flex;justify-content:space-between;font-size:14px}
+.summary-total{margin-top:9px;padding-top:9px;border-top:1px solid var(--light);font-size:16px}
+.error{
+  display:none;margin:0 16px 12px;padding:12px 14px;border-radius:10px;
+  border:1px solid #f0b9b5;background:#fff1f0;color:#b83b32;font-size:13px;
+}
+.error.show{display:block}
+.note{margin:0 18px;color:var(--muted);font-size:11px;line-height:1.7}
+.submit-wrap{
+  position:fixed;bottom:0;left:0;right:0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+  background:linear-gradient(to top,var(--cream) 70%,transparent);
+}
+.submit{
+  width:100%;border:0;border-radius:14px;padding:17px;background:var(--dark);
+  color:var(--light);font-family:'Noto Sans JP',sans-serif;font-size:17px;
+}
+.submit:disabled{background:#bdb5ae;color:#eee}
+.success{
+  display:none;position:fixed;inset:0;background:var(--cream);z-index:20;
+  align-items:center;justify-content:center;flex-direction:column;padding:34px;text-align:center;
+}
+.success.show{display:flex}
+.success .big{font-size:58px}
+.success h2{font-family:'Cormorant Garamond',serif;font-size:28px;margin:12px 0;color:var(--dark)}
+.success p{font-size:13px;color:var(--muted);line-height:1.8}
+.detail{
+  width:100%;max-width:340px;background:white;border:1px solid var(--warm);border-radius:12px;
+  padding:16px;margin-top:20px;text-align:left;font-size:13px;line-height:1.8;
+}
+.back{
+  margin-top:20px;border:1.5px solid var(--brown);background:transparent;border-radius:30px;
+  padding:12px 30px;color:var(--brown);font-size:14px;
+}
+.init{
+  position:fixed;inset:0;background:var(--dark);z-index:30;display:flex;
+  align-items:center;justify-content:center;color:var(--light);letter-spacing:.12em;
+}
+.init.hide{display:none}
+</style>
+</head>
+<body>
+
+<div class="init" id="initScreen">Mother's Peace</div>
+
+<header>
+  <div class="brand">Mother's Peace Kobe</div>
+  <div class="sub">FOCACCIA TAKE OUT</div>
+  <div class="title">
+    フォカッチャ持ち帰り予約
+    <small>2個入り ¥500｜1日3セット限定</small>
+  </div>
+</header>
+
+<div class="card">
+  <div class="product">
+    <div class="emoji">🍞</div>
+    <div class="product-info">
+      <div class="product-name">フォカッチャ<br>お持ち帰り2個入り</div>
+      <div class="price">¥500</div>
+      <div class="stock" id="stockText">受取日を選ぶと在庫を確認できます</div>
+    </div>
+  </div>
+  <div class="counter-row">
+    <div class="counter-label">セット数</div>
+    <div class="counter">
+      <button id="minusBtn" onclick="changeQty(-1)">−</button>
+      <div class="count" id="qty">0</div>
+      <button id="plusBtn" onclick="changeQty(1)">＋</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="field">
+    <label>お名前</label>
+    <input id="nameInput" maxlength="20" placeholder="例：田中">
+  </div>
+  <div class="field">
+    <label>電話番号</label>
+    <input id="phoneInput" type="tel" maxlength="15" placeholder="例：090-0000-0000">
+  </div>
+  <div class="field">
+    <label>📅 ピックアップ日付</label>
+    <select id="pickupDate" onchange="onDateChange()">
+      <option value="">日付を選んでください</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>🕐 ピックアップ時間</label>
+    <select id="pickupTime" disabled>
+      <option value="">先に日付を選んでください</option>
+    </select>
+  </div>
+</div>
+
+<div class="summary" id="summary">
+  <div class="summary-line"><span id="summaryName">フォカッチャ2個入り × 0</span><span id="summaryPrice">¥0</span></div>
+  <div class="summary-line summary-total"><span>合計</span><span id="summaryTotal">¥0</span></div>
+</div>
+
+<div class="error" id="error"></div>
+<div class="note">※ 在庫は受取日ごとに管理しています。変更やキャンセルはLINEでご連絡ください。</div>
+
+<div class="submit-wrap">
+  <button class="submit" id="submitBtn" onclick="submitOrder()">予約する</button>
+</div>
+
+<div class="success" id="success">
+  <div class="big">🍞</div>
+  <h2>Reserved!</h2>
+  <p>ご予約ありがとうございます。<br>指定のお時間にお待ちしております。</p>
+  <div class="detail" id="successDetail"></div>
+  <button class="back" onclick="location.reload()">戻る</button>
+</div>
+
+<script>
+const LIFF_ID = '2009748384-YPMycy7M';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
+const LIMIT = 3;
+
+let qty = 0;
+let remaining = LIMIT;
+let selectedDate = '';
+let lineUserId = null;
+let lineDisplayName = '';
+let submitInProgress = false;
+
+function isClosedDate(year, month, day) {
+  return year === 2026 && (
+    (month === 8 && (day === 14 || day === 31)) ||
+    (month === 9 && day >= 9 && day <= 14) ||
+    (month === 10 && (day === 1 || day === 12 || day === 18 || day === 24))
+  );
+}
+
+async function initLiff() {
+  if (location.protocol === 'file:') {
+    document.getElementById('initScreen').classList.add('hide');
+    return;
+  }
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
+    }
+    const profile = await liff.getProfile();
+    lineUserId = profile.userId;
+    lineDisplayName = profile.displayName;
+    document.getElementById('nameInput').value = lineDisplayName;
+  } catch(e) {
+    console.warn(e);
+  } finally {
+    document.getElementById('initScreen').classList.add('hide');
+  }
+}
+
+function buildDateOptions() {
+  const select = document.getElementById('pickupDate');
+  const days = ['日','月','火','水','木','金','土'];
+  const today = new Date();
+  let d = new Date(today);
+  let count = 0;
+
+  while (count < 3) {
+    const y=d.getFullYear(), m=d.getMonth()+1, day=d.getDate();
+    if (isClosedDate(y,m,day)) {
+      d.setDate(d.getDate()+1);
+      continue;
+    }
+    const mm=String(m).padStart(2,'0');
+    const dd=String(day).padStart(2,'0');
+    const value=`${y}-${mm}-${dd}`;
+    const label=`${mm}/${dd}（${days[d.getDay()]}）`;
+    const opt=document.createElement('option');
+    opt.value=value;
+    opt.textContent=(d.toDateString()===today.toDateString()?'今日 ':'')+label;
+    select.appendChild(opt);
+    count++;
+    d.setDate(d.getDate()+1);
+  }
+}
+
+async function getStock(dateVal) {
+  try {
+    const res = await fetch(
+      GAS_URL + '?type=focacciaStock&date=' + encodeURIComponent(dateVal) + '&_=' + Date.now()
+    );
+    const data = await res.json();
+    if (data && data.ok !== false && Number.isFinite(Number(data.remaining))) {
+      return Math.max(0, Number(data.remaining));
+    }
+  } catch(e) {
+    console.warn(e);
+  }
+  return LIMIT;
+}
+
+async function onDateChange() {
+  selectedDate = document.getElementById('pickupDate').value;
+  const timeSelect = document.getElementById('pickupTime');
+  timeSelect.innerHTML = '<option value="">時間を選んでください</option>';
+  qty = 0;
+  updateUI();
+
+  if (!selectedDate) {
+    timeSelect.disabled = true;
+    remaining = LIMIT;
+    document.getElementById('stockText').textContent = '受取日を選ぶと在庫を確認できます';
+    return;
+  }
+
+  remaining = await getStock(selectedDate);
+  updateUI();
+
+  const now = new Date();
+  const todayStr = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  const isToday = selectedDate === todayStr;
+
+  timeSelect.disabled = false;
+  let h=7,m=15;
+  while (h<11 || (h===11 && m===0)) {
+    const label=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+    const opt=document.createElement('option');
+    opt.value=label;
+    opt.textContent=label;
+
+    const cutoff = now.getHours()>9 || (now.getHours()===9 && now.getMinutes()>=45);
+    const nowPlus15 = new Date(now.getTime()+15*60000);
+    if (isToday && (cutoff || h<nowPlus15.getHours() || (h===nowPlus15.getHours() && m<nowPlus15.getMinutes()))) {
+      opt.disabled=true;
+      opt.textContent=label+'（受付終了）';
+    }
+    timeSelect.appendChild(opt);
+    m+=15;
+    if(m>=60){m-=60;h++;}
+  }
+}
+
+function changeQty(delta) {
+  clearError();
+  if (!selectedDate && delta>0) {
+    showError('先にピックアップ日付を選んでください');
+    return;
+  }
+  const next = Math.max(0, qty + delta);
+  if (next > remaining) {
+    showError(remaining<=0 ? 'この日のフォカッチャは売り切れました' : 'この日は最大'+remaining+'セットまでご予約いただけます');
+    return;
+  }
+  qty = next;
+  updateUI();
+}
+
+function updateUI() {
+  document.getElementById('qty').textContent = qty;
+  const available = Math.max(0, remaining - qty);
+
+  if (selectedDate) {
+    document.getElementById('stockText').textContent =
+      remaining<=0 ? 'この日の予約分は売り切れました' : 'あと'+available+'セット選べます';
+  }
+
+  document.getElementById('plusBtn').disabled = !selectedDate || qty >= remaining || remaining<=0;
+  document.getElementById('minusBtn').disabled = qty<=0;
+
+  const summary=document.getElementById('summary');
+  if(qty>0){
+    summary.classList.add('show');
+    document.getElementById('summaryName').textContent='フォカッチャ2個入り × '+qty;
+    document.getElementById('summaryPrice').textContent='¥'+(qty*500).toLocaleString();
+    document.getElementById('summaryTotal').textContent='¥'+(qty*500).toLocaleString();
+  }else{
+    summary.classList.remove('show');
+  }
+}
+
+function showError(msg){
+  const el=document.getElementById('error');
+  el.textContent=msg;
+  el.classList.add('show');
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function clearError(){document.getElementById('error').classList.remove('show')}
+
+async function submitOrder(){
+  if(submitInProgress) return;
+
+  const name=document.getElementById('nameInput').value.trim();
+  const phone=document.getElementById('phoneInput').value.trim();
+  const date=document.getElementById('pickupDate').value;
+  const dateLabel=document.getElementById('pickupDate').options[document.getElementById('pickupDate').selectedIndex]?.text || '';
+  const time=document.getElementById('pickupTime').value;
+
+  clearError();
+  if(!name){showError('お名前を入力してください');return;}
+  if(!date){showError('ピックアップ日付を選んでください');return;}
+  if(!time){showError('ピックアップ時間を選んでください');return;}
+  if(qty<1){showError('セット数を選んでください');return;}
+
+  submitInProgress=true;
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;
+  btn.textContent='送信中…';
+
+  try{
+    const latest=await getStock(date);
+    if(qty>latest){
+      remaining=latest;
+      if(qty>remaining) qty=remaining;
+      updateUI();
+      showError(latest<=0?'申し訳ありません。この日の予約分は売り切れました':'申し訳ありません。残り'+latest+'セットです');
+      return;
+    }
+
+    const mm=date.substring(5,7), dd=date.substring(8,10);
+    const total=qty*500;
+    const payload={
+      name,
+      phone,
+      pickupDate:date,
+      pickupTime:`${mm}/${dd} ${time}`,
+      total,
+      lineUserId,
+      items:[{
+        emoji:'🍞',
+        name:'フォカッチャお持ち帰り2個入り',
+        count:qty,
+        subtotal:total.toLocaleString()
+      }]
+    };
+
+    await fetch(GAS_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+
+    document.getElementById('successDetail').innerHTML =
+      '🍞 フォカッチャお持ち帰り2個入り × '+qty+
+      '<br>💰 合計 ¥'+total.toLocaleString()+
+      '<br>🕐 ピックアップ '+dateLabel+' '+time+
+      '<br>👤 '+name+' 様';
+
+    document.getElementById('success').classList.add('show');
+  }catch(e){
+    showError('通信エラーが発生しました。ネットワークを確認してください。');
+  }finally{
+    submitInProgress=false;
+    btn.disabled=false;
+    btn.textContent='予約する';
+  }
+}
+
+buildDateOptions();
+initLiff();
+updateUI();
+</script>
+</body>
+</html>
