@@ -361,14 +361,11 @@ const prosciuttoSoldOutToday =
   todayForMenu.getMonth() === 9 &&
   todayForMenu.getDate() === 4;
 
-const salmonSoldOutToday =
-  todayForMenu.getFullYear() === 2026 &&
-  todayForMenu.getMonth() === 9 &&
-  todayForMenu.getDate() === 9;
+const salmonSoldOut = true; // 当面販売停止
 
 const MENU = [
   { id: 'morning_pork', emoji: '🌅', name: 'MORNING SET｜プルドポーク', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
-  { id: 'morning_salmon', emoji: '🐟', name: 'MORNING SET｜スモークサーモン＆クリームチーズ', price: 650, morning: true, soldout: salmonSoldOutToday, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
+  { id: 'morning_salmon', emoji: '🐟', name: 'MORNING SET｜スモークサーモン＆クリームチーズ', price: 650, morning: true, soldout: salmonSoldOut, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
   { id: 'morning_prosciutto', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ', price: 550, morning: true, soldout: prosciuttoSoldOutToday, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
 
 
@@ -376,7 +373,7 @@ const MENU = [
   { id: 'pork_cheese', emoji: '🥩', name: '【レギュラー】プルドポークサンド＋チーズ', price: 650, sub: true, size: 'regular' },
   { id: 'pork2', emoji: '🥩', name: '【レギュラー】プルドポークサンド ダブル', price: 800, note: '中身2倍', sub: true, size: 'regular' },
   { id: 'pork2_cheese', emoji: '🥩', name: '【レギュラー】プルドポークサンド ダブル＋チーズ', price: 900, sub: true, size: 'regular' },
-  { id: 'salmon', emoji: '🍋', name: '【レギュラー】厚切りスモークサーモンとクリームチーズ', price: 850, soldout: salmonSoldOutToday, size: 'regular' },
+  { id: 'salmon', emoji: '🍋', name: '【レギュラー】厚切りスモークサーモンとクリームチーズ', price: 850, soldout: salmonSoldOut, size: 'regular' },
   { id: 'prosciutto', emoji: '🧀', name: '【レギュラー】生ハム＆モッツアレラチーズ・バジルペースト', price: 800, soldout: prosciuttoSoldOutToday, size: 'regular' },
 
   { id: 'focaccia', emoji: '🍞', name: 'フォカッチャお持ち帰り2個入り', price: 500 },
@@ -393,6 +390,8 @@ const MENU = [
 
 let counts = {};
 let morningDrinks = {};
+
+const BLOCKED_ITEM_IDS = new Set(['morning_salmon', 'salmon']);
 
 const MORNING_UPGRADES = {
   morning_pork: 'チーズ入り',
@@ -830,6 +829,12 @@ async function submitOrder() {
   if (!pickupDate) { showError('ピックアップ日付を選んでください'); return; }
   if (!pickupTime) { showError('ピックアップ時間を選んでください'); return; }
   if (items.length === 0) { showError('商品を1つ以上選んでください'); return; }
+
+  const blockedItem = items.find(m => BLOCKED_ITEM_IDS.has(m.id));
+  if (blockedItem) {
+    showError('サーモン系メニューは現在売り切れです。別の商品をお選びください');
+    return;
+  }
 
  const hasMorningSet = items.some(m => m.morning);
 
