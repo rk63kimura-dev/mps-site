@@ -365,6 +365,7 @@ const salmonSoldOut = true; // 当面販売停止
 
 const MENU = [
   { id: 'morning_pork', emoji: '🌅', name: 'MORNING SET｜プルドポーク', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
+  { id: 'morning_pork_cheese', emoji: '🧀', name: 'MORNING SET｜プルドポーク＋チーズ', price: 650, morning: true, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
   { id: 'morning_salmon', emoji: '🐟', name: 'MORNING SET｜スモークサーモン＆クリームチーズ', price: 650, morning: true, soldout: salmonSoldOut, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
   { id: 'morning_prosciutto', emoji: '🧀', name: 'MORNING SET｜生ハム＆モッツァレラ', price: 550, morning: true, soldout: prosciuttoSoldOutToday, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
 
@@ -392,7 +393,6 @@ let morningDrinks = {};
 const BLOCKED_ITEM_IDS = new Set(['morning_salmon', 'salmon']);
 
 const MORNING_UPGRADES = {
-  morning_pork: 'チーズ入り',
   morning_prosciutto: 'バジルペースト入り'
 };
 let morningUpgrades = {};
