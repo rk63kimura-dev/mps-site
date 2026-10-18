@@ -384,8 +384,6 @@ const MENU = [
   { id: 'icecafeaulait', emoji: '🥛', name: 'カフェオレ（ICED）', price: 250, sub: true },
   { id: 'tea', emoji: '🍵', name: '紅茶（HOT）', price: 150, sub: true },
   { id: 'icetea', emoji: '🧊', name: '紅茶（ICED）', price: 150, sub: true },
-  { id: 'chai', emoji: '🫖', name: 'チャイ', price: 250, sub: true },
-  { id: 'cornsoup', emoji: '🌽', name: 'コーンスープ', price: 200, sub: true },
 ];
 
 let counts = {};
@@ -683,8 +681,6 @@ function renderMenu() {
 <option value="紅茶（ICED）">🧊 紅茶（ICED）</option>
 <option value="カフェオレ（HOT）">🥛 カフェオレ（HOT）（＋¥100）</option>
 <option value="カフェオレ（ICED）">🥛 カフェオレ（ICED）（＋¥100）</option>
-<option value="チャイ">🫖 チャイ（＋¥150）</option>
-<option value="コーンスープ">🌽 コーンスープ（＋¥100）</option>
             </select>
 
    ${MORNING_UPGRADES[item.id] ? `
@@ -733,13 +729,6 @@ function getUnitPrice(item) {
       price += 100;
     }
 
-    if (drink === 'チャイ') {
-      price += 150;
-    }
-
-    if (drink === 'コーンスープ') {
-      price += 100;
-    }
   }
 
   if (item.morning && morningUpgrades[item.id]) {
