@@ -356,7 +356,7 @@ const LIFF_ID = '2009748384-YPMycy7M';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
 
 const todayForMenu = new Date();
-const prosciuttoSoldOut = true; // 当面販売停止
+const prosciuttoSoldOut = false; // 販売再開
 
 const salmonSoldOut = true; // 当面販売停止
 
@@ -387,7 +387,7 @@ const MENU = [
 let counts = {};
 let morningDrinks = {};
 
-const BLOCKED_ITEM_IDS = new Set(['morning_salmon', 'salmon', 'morning_prosciutto', 'prosciutto']);
+const BLOCKED_ITEM_IDS = new Set(['morning_salmon', 'salmon']);
 
 const MORNING_UPGRADES = {
   morning_prosciutto: 'バジルペースト入り'
