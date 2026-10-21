@@ -358,7 +358,7 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX
 const todayForMenu = new Date();
 const prosciuttoSoldOut = false; // 販売再開
 
-const salmonSoldOut = true; // 当面販売停止
+const salmonSoldOut = false; // 販売再開
 
 const MENU = [
   { id: 'morning_pork', emoji: '🌅', name: 'MORNING SET｜プルドポーク', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
@@ -387,7 +387,7 @@ const MENU = [
 let counts = {};
 let morningDrinks = {};
 
-const BLOCKED_ITEM_IDS = new Set(['morning_salmon', 'salmon']);
+const BLOCKED_ITEM_IDS = new Set([]);
 
 const MORNING_UPGRADES = {
   morning_prosciutto: 'バジルペースト入り'
