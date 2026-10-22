@@ -242,7 +242,49 @@ function buildDateOptions() {
   }
 }
 
+function normalizeOrderDateValue(v) {
+  if (!v) return '';
+  const s = String(v).trim();
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})$/);
+  if (m) return new Date().getFullYear() + '-' + String(m[1]).padStart(2,'0') + '-' + String(m[2]).padStart(2,'0');
+  m = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+  if (m) return m[1] + '-' + String(m[2]).padStart(2,'0') + '-' + String(m[3]).padStart(2,'0');
+  const d = new Date(v);
+  if (!isNaN(d.getTime())) {
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  return '';
+}
+
+function countFocacciaSets(itemsText) {
+  const text = String(itemsText || '');
+  let total = 0;
+  const re = /フォカッチャお持ち帰り2個入り\s*×\s*(\d+)/g;
+  let m;
+  while ((m = re.exec(text)) !== null) total += Number(m[1]) || 0;
+  return total;
+}
+
 async function getStock(dateVal) {
+  // 実際の注文一覧から数量を直接集計する
+  try {
+    const res = await fetch(GAS_URL + '?type=latestOrders&ts=' + Date.now());
+    const data = await res.json();
+    const orders = Array.isArray(data.orders) ? data.orders : [];
+    let ordered = 0;
+
+    orders.forEach(o => {
+      if (String(o.type || '').trim() !== '朝注文') return;
+      if (normalizeOrderDateValue(o.date) !== dateVal) return;
+      ordered += countFocacciaSets(o.items);
+    });
+
+    return Math.max(0, LIMIT - ordered);
+  } catch (e) {
+    console.warn('latestOrders stock check failed:', e);
+  }
+
+  // 念のため従来APIへフォールバック
   try {
     const res = await fetch(
       GAS_URL + '?type=focacciaStock&date=' + encodeURIComponent(dateVal) + '&_=' + Date.now()
@@ -252,8 +294,9 @@ async function getStock(dateVal) {
       return Math.max(0, Number(data.remaining));
     }
   } catch(e) {
-    console.warn(e);
+    console.warn('focacciaStock fallback failed:', e);
   }
+
   return LIMIT;
 }
 
