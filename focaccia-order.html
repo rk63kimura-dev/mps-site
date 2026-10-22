@@ -322,7 +322,7 @@ function updateUI() {
       remaining<=0 ? 'この日の予約分は売り切れました' : 'あと'+available+'セット選べます';
   }
 
-  document.getElementById('plusBtn').disabled = !selectedDate || qty >= remaining || remaining<=0;
+  document.getElementById('plusBtn').disabled = selectedDate ? (qty >= remaining || remaining<=0) : false;
   document.getElementById('minusBtn').disabled = qty<=0;
 
   const summary=document.getElementById('summary');
