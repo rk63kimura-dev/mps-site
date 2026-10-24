@@ -266,6 +266,8 @@ function countFocacciaSets(itemsText) {
 }
 
 async function getStock(dateVal) {
+  if (dateVal === '2026-10-25') return 0; // 10/25はフォカッチャ販売停止
+
   // 実際の注文一覧から数量を直接集計する
   try {
     const res = await fetch(GAS_URL + '?type=latestOrders&ts=' + Date.now());
