@@ -15,33 +15,28 @@
       --red: #a52721;
       --shadow: 0 8px 28px rgba(71, 45, 28, .15);
     }
-
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-
     body {
       margin: 0;
       background:
-        radial-gradient(circle at top, rgba(255,255,255,.9), transparent 32rem),
+        radial-gradient(circle at top, rgba(255,255,255,.92), transparent 32rem),
         var(--bg);
       color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
                    "Yu Gothic", "Noto Sans JP", sans-serif;
     }
-
     header {
       padding: max(24px, env(safe-area-inset-top)) 16px 18px;
       text-align: center;
     }
-
     .brand {
       margin: 0;
       font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(22px, 6vw, 34px);
+      font-size: clamp(24px, 6vw, 36px);
       line-height: 1.15;
       letter-spacing: .02em;
     }
-
     .subtitle {
       margin: 7px 0 0;
       color: var(--green);
@@ -49,7 +44,6 @@
       font-weight: 800;
       letter-spacing: .18em;
     }
-
     nav {
       position: sticky;
       top: 0;
@@ -58,13 +52,12 @@
       justify-content: center;
       gap: 8px;
       padding: 10px 12px;
-      background: rgba(246, 239, 226, .92);
+      background: rgba(246, 239, 226, .94);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-top: 1px solid rgba(52, 33, 23, .08);
       border-bottom: 1px solid rgba(52, 33, 23, .08);
     }
-
     nav a {
       flex: 1 1 0;
       max-width: 220px;
@@ -77,28 +70,23 @@
       font-weight: 800;
       box-shadow: 0 3px 10px rgba(52, 33, 23, .12);
     }
-
     nav a:first-child { background: var(--green); }
     nav a:last-child { background: var(--red); }
-
     main {
       width: min(100%, 820px);
       margin: 0 auto;
       padding: 18px 12px 42px;
     }
-
     section {
       scroll-margin-top: 72px;
       margin-bottom: 28px;
     }
-
     h2 {
       margin: 0 0 10px;
       text-align: center;
       font-size: 18px;
       letter-spacing: .05em;
     }
-
     .menu-image {
       display: block;
       width: 100%;
@@ -107,35 +95,16 @@
       background: var(--paper);
       box-shadow: var(--shadow);
     }
-
     footer {
       padding: 4px 16px calc(24px + env(safe-area-inset-bottom));
       text-align: center;
       color: rgba(52, 33, 23, .62);
       font-size: 12px;
     }
-
     @media (min-width: 700px) {
       main { padding-left: 24px; padding-right: 24px; }
       .menu-image { border-radius: 18px; }
     }
-
-    /* 2026-10-25 テイクアウトメニュー最新ドリンク欄 */
-    .takeout-menu { border-radius: 14px; overflow: hidden; background: #fff4dd; box-shadow: var(--shadow); }
-    .takeout-image-top { overflow: hidden; aspect-ratio: 1024 / 1056; }
-    .takeout-image-top img { display:block; width:100%; height:auto; }
-    .takeout-drink { position:relative; margin:0 3.5% 1%; padding:2.5% 4% 4%; border:2px solid #276139; border-radius:14px; text-align:center; background:linear-gradient(135deg,#fff5e4,#f8e1ba); color:#163f27; }
-    .drink-heading { font-family:Georgia,serif; font-weight:900; font-size:clamp(24px,7vw,55px); line-height:1.1; letter-spacing:1px; }
-    .drink-subtitle { font-size:clamp(13px,3.5vw,24px); font-weight:700; }
-    .drink-price { color:#c7191f; font-family:Georgia,serif; font-size:clamp(29px,9vw,65px); font-weight:700; line-height:1.25; }
-    .drink-items { color:#28221e; font-weight:700; font-size:clamp(13px,3.7vw,27px); line-height:1.7; }
-    .drink-items strong { color:#bd1c20; }
-    .drink-cups { position:absolute; right:6%; top:26%; font-size:clamp(28px,8vw,70px); opacity:.6; }
-    .takeout-reserve { margin:1% 3.5% 3%; padding:2.8% 4%; display:flex; justify-content:space-between; align-items:center; gap:8px; background:#f4dfbb; border-radius:12px; font-size:clamp(11px,2.8vw,18px); line-height:1.5; }
-    .line-label { color:#04a542; display:flex; gap:8px; align-items:center; font-weight:800; white-space:nowrap; }
-    .line-label strong { background:#06bd4e;color:white;padding:8px 5px;border-radius:7px;font-size:clamp(10px,3vw,16px); }
-    .line-label span { font-size:clamp(10px,2.9vw,17px); }
-    @media (min-width:700px) { .takeout-menu {border-radius:18px;} }
   </style>
 </head>
 <body>
@@ -150,37 +119,19 @@
   </nav>
 
   <main>
-
     <section id="morning" aria-labelledby="morning-title">
       <h2 id="morning-title">モーニングセット｜9:00まで</h2>
-      <img class="menu-image" src="morning-new.png?v=20261025" alt="モーニングセット 550円 9時まで" loading="lazy">
+      <img class="menu-image" src="morning-new.png?v=20261025" alt="モーニングセット 550円 9時まで" loading="eager">
     </section>
-
 
     <section id="eatin" aria-labelledby="eatin-title">
       <h2 id="eatin-title">店内メニュー</h2>
-      <img class="menu-image" src="eatin-latest.png?v=20261025" alt="店内メニュー" width="1024" height="1536">
+      <img class="menu-image" src="eatin-latest.png?v=20261025" alt="店内メニュー" loading="lazy">
     </section>
 
     <section id="takeout" aria-labelledby="takeout-title">
       <h2 id="takeout-title">テイクアウトメニュー</h2>
-      <!-- 最新テイクアウトメニュー：商品写真は既存画像、ドリンク欄は2026-10-25版をHTMLで表示 -->
-      <div class="takeout-menu" aria-label="テイクアウトメニュー">
-        <div class="takeout-image-top">
-          <img src="takeout-latest.png?v=20261025" alt="プルドポーク550円・チーズ入り650円、ダブル800円・チーズ入り900円、スモークサーモン850円、生ハム＆モッツァレラ800円" loading="lazy">
-        </div>
-        <div class="takeout-drink">
-          <div class="drink-heading">DRINK SET</div>
-          <div class="drink-subtitle">ドリンクセット</div>
-          <div class="drink-price">＋¥150</div>
-          <div class="drink-items">コーヒー（HOT / ICED）<br>紅茶（HOT / ICED）<br>カフェオレ <strong>＋¥250</strong></div>
-          <div class="drink-cups" aria-hidden="true">☕</div>
-        </div>
-        <div class="takeout-reserve">
-          <div><strong>ご予約・お取り置きも承ります！</strong><br>お気軽にLINEからご連絡ください。</div>
-          <div class="line-label"><strong>LINE</strong><span>LINEで<br>ご予約OK！</span></div>
-        </div>
-      </div>
+      <img class="menu-image" src="takeout-latest.png?v=20261025" alt="テイクアウトメニュー" loading="lazy">
     </section>
   </main>
 
