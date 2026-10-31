@@ -452,7 +452,8 @@ function isClosedDate(year, month, day) {
   return year === 2026 && (
     (month === 8 && (day === 14 || day === 31)) ||
     (month === 9 && day >= 9 && day <= 14) ||
-    (month === 10 && (day === 1 || day === 12 || day === 18 || day === 24))
+    (month === 10 && (day === 1 || day === 12 || day === 18 || day === 24)) ||
+    (month === 11 && (day === 1 || day === 8 || day === 15 || day === 22 || day === 29))
   );
 }
 
