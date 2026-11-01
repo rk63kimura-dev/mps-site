@@ -13,6 +13,8 @@ h1{margin:0;font-size:34px}
 #status{font-size:22px;color:#d8b27b;margin-top:8px}
 .alert{background:#b00020;color:white;text-align:center;padding:45px 20px;display:none;min-height:70vh}
 .alert.cancel{background:#f4b400;color:#221100}
+.alert.tomorrow{background:#f4c542;color:#221100}
+.alert.future{background:#8ec5e8;color:#10293a}
 .alert.show{display:block}
 .alert h2{font-size:76px;margin:0 0 25px}
 .alert .time{font-size:96px;font-weight:bold}
@@ -22,6 +24,8 @@ button{font-size:48px;padding:24px 70px;border-radius:24px;border:0;margin-top:3
 .list{padding:20px}
 .order{background:#fff;color:#222;border-radius:18px;padding:18px;margin:14px 0;font-size:26px}
 .order.cancel{background:#f4b400;color:#221100;border:4px solid #8a5a00}
+.order.tomorrow{background:#fff3b8;color:#222;border:4px solid #e0b629}
+.order.future{background:#dff1ff;color:#222;border:4px solid #7bb5df}
 .order .top{font-weight:bold;font-size:32px}
 .order .pickup-date{color:#b00020;margin-right:16px}
 .order .items{margin-top:8px;color:#444}
@@ -194,6 +198,21 @@ function dateOnly(d){
   );
 }
 
+function orderTiming(o){
+  const d = parseOrderDate(o.date);
+  if(!d) return 'unknown';
+
+  const today = dateOnly(new Date());
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const t = dateOnly(d).getTime();
+  if(t === today.getTime()) return 'today';
+  if(t === tomorrow.getTime()) return 'tomorrow';
+  if(t > tomorrow.getTime()) return 'future';
+  return 'past';
+}
+
 function orderSortValue(o){
   const d = parseOrderDate(o.date);
   if(!d) return Number.MAX_SAFE_INTEGER;
@@ -213,7 +232,7 @@ function orderSortValue(o){
   return d.getTime();
 }
 
-function renderOrderCard(o){
+function renderOrderCard(o, kind){
   if(o.type === 'キャンセル'){
     return `
       <div class="order cancel">
@@ -225,8 +244,10 @@ function renderOrderCard(o){
     `;
   }
 
+  const timingClass = kind === 'tomorrow' ? ' tomorrow' : (kind === 'future' ? ' future' : '');
+
   return `
-    <div class="order">
+    <div class="order${timingClass}">
       <div class="top">
         <span class="pickup-date">${formatOrderDate(o.date)}</span>
         ${formatTime(o.time)}　${o.name || ''} 様　¥${o.total || ''}
@@ -237,7 +258,7 @@ function renderOrderCard(o){
   `;
 }
 
-function renderOrderSection(title, list){
+function renderOrderSection(title, list, kind){
   if(list.length === 0) return '';
 
   return `
@@ -249,7 +270,7 @@ function renderOrderSection(title, list){
         background:rgba(255,255,255,0.14);
         border-radius:12px;
       ">${title}　${list.length}件</div>
-      ${list.map(renderOrderCard).join('')}
+      ${list.map(o => renderOrderCard(o, kind)).join('')}
     </div>
   `;
 }
@@ -309,12 +330,12 @@ function renderOrders(orders){
   pastOrders.sort((a,b) => orderSortValue(b) - orderSortValue(a));
 
   box.innerHTML =
-    renderOrderSection('⚠️ キャンセル希望', cancellations) +
-    renderOrderSection('🔴 今日の注文', todayOrders) +
-    renderOrderSection('🟡 明日の注文', tomorrowOrders) +
-    renderOrderSection('⚪ それ以降の予約', futureOrders) +
-    renderOrderSection('過去の注文', pastOrders) +
-    renderOrderSection('日付未設定', unknownOrders);
+    renderOrderSection('⚠️ キャンセル希望', cancellations, 'cancel') +
+    renderOrderSection('🔴 今日の注文', todayOrders, 'today') +
+    renderOrderSection('🟡 明日の注文', tomorrowOrders, 'tomorrow') +
+    renderOrderSection('🔵 それ以降の予約', futureOrders, 'future') +
+    renderOrderSection('過去の注文', pastOrders, 'past') +
+    renderOrderSection('日付未設定', unknownOrders, 'unknown');
 
   if(!box.innerHTML){
     box.innerHTML = '<div style="padding:20px;">注文はありません</div>';
@@ -346,12 +367,21 @@ async function checkOrders(){
       document.getElementById('alertName').textContent = (latest.name || '') + ' 様';
       document.getElementById('alertItems').textContent = latest.items || '';
       const alertBox = document.getElementById('alert');
-      alertBox.classList.remove('cancel');
+      alertBox.classList.remove('cancel','tomorrow','future');
       if(latest.type === 'キャンセル'){
         document.querySelector('#alert h2').textContent = '⚠️ キャンセル希望！！';
         alertBox.classList.add('cancel');
       }else{
-        document.querySelector('#alert h2').textContent = '🔔 新しい注文！！';
+        const timing = orderTiming(latest);
+        if(timing === 'tomorrow'){
+          document.querySelector('#alert h2').textContent = '🟡 明日の予約！！';
+          alertBox.classList.add('tomorrow');
+        }else if(timing === 'future'){
+          document.querySelector('#alert h2').textContent = '🔵 今後の予約！！';
+          alertBox.classList.add('future');
+        }else{
+          document.querySelector('#alert h2').textContent = '🔔 今日の新しい注文！！';
+        }
       }
       alertBox.classList.add('show');
       startAlarm();
