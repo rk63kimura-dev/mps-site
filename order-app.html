@@ -720,19 +720,23 @@ function renderMenu() {
           ${dynamicNote ? `<div class="item-note">${dynamicNote}</div>` : ''}
 
           ${item.morning ? `
-            <select
-              id="drink-${item.id}"
-              onchange="setMorningDrink('${item.id}', this.value)"
-              style="margin-top:10px;padding:9px 10px;border:1px solid #d9c8b5;border-radius:8px;background:#fffaf5;font-size:14px;width:100%;max-width:280px;"
-            >
-             <option value="">ドリンクを選んでください</option>
-<option value="ホットコーヒー">☕ コーヒー（HOT）</option>
-<option value="アイスコーヒー">🧊 コーヒー（ICED）</option>
-<option value="紅茶（HOT）">🍵 紅茶（HOT）</option>
-<option value="紅茶（ICED）">🧊 紅茶（ICED）</option>
-<option value="カフェオレ（HOT）">🥛 カフェオレ（HOT）（＋¥100）</option>
-<option value="カフェオレ（ICED）">🥛 カフェオレ（ICED）（＋¥100）</option>
-            </select>
+            ${Array.from({ length: Math.max(1, counts[item.id] || 0) }, (_, idx) => `
+              <div style="margin-top:${idx === 0 ? 10 : 8}px;">
+                ${(counts[item.id] || 0) > 1 ? `<div style="font-size:12px;color:#8a7060;margin-bottom:4px;">${idx + 1}個目のドリンク</div>` : ''}
+                <select
+                  onchange="setMorningDrink('${item.id}', ${idx}, this.value)"
+                  style="padding:9px 10px;border:1px solid #d9c8b5;border-radius:8px;background:#fffaf5;font-size:14px;width:100%;max-width:280px;"
+                >
+                  <option value="">ドリンクを選んでください</option>
+                  <option value="ホットコーヒー" ${getMorningDrink(item.id, idx) === 'ホットコーヒー' ? 'selected' : ''}>☕ コーヒー（HOT）</option>
+                  <option value="アイスコーヒー" ${getMorningDrink(item.id, idx) === 'アイスコーヒー' ? 'selected' : ''}>🧊 コーヒー（ICED）</option>
+                  <option value="紅茶（HOT）" ${getMorningDrink(item.id, idx) === '紅茶（HOT）' ? 'selected' : ''}>🍵 紅茶（HOT）</option>
+                  <option value="紅茶（ICED）" ${getMorningDrink(item.id, idx) === '紅茶（ICED）' ? 'selected' : ''}>🧊 紅茶（ICED）</option>
+                  <option value="カフェオレ（HOT）" ${getMorningDrink(item.id, idx) === 'カフェオレ（HOT）' ? 'selected' : ''}>🥛 カフェオレ（HOT）（＋¥100）</option>
+                  <option value="カフェオレ（ICED）" ${getMorningDrink(item.id, idx) === 'カフェオレ（ICED）' ? 'selected' : ''}>🥛 カフェオレ（ICED）（＋¥100）</option>
+                </select>
+              </div>
+            `).join('')}
 
    ${MORNING_UPGRADES[item.id] ? `
   <select
@@ -760,8 +764,16 @@ function renderMenu() {
 
 }
 
-function setMorningDrink(id, value) {
-  morningDrinks[id] = value;
+function getMorningDrink(id, index) {
+  const drinks = morningDrinks[id];
+  if (Array.isArray(drinks)) return drinks[index] || '';
+  if (typeof drinks === 'string' && index === 0) return drinks;
+  return '';
+}
+
+function setMorningDrink(id, index, value) {
+  if (!Array.isArray(morningDrinks[id])) morningDrinks[id] = [];
+  morningDrinks[id][index] = value;
   updateSummary();
 }
 
@@ -770,33 +782,52 @@ function setMorningUpgrade(id, value) {
   updateSummary();
 }
 
-function getUnitPrice(item) {
+function getDrinkSurcharge(drink) {
+  return (drink === 'カフェオレ（HOT）' || drink === 'カフェオレ（ICED）') ? 100 : 0;
+}
+
+function getUnitPrice(item, index = 0) {
   let price = item.price;
-
-  if (item.morning) {
-    const drink = morningDrinks[item.id];
-
-    if (drink === 'カフェオレ（HOT）' || drink === 'カフェオレ（ICED）') {
-      price += 100;
-    }
-
-  }
-
-  if (item.morning && morningUpgrades[item.id]) {
-    price += 100;
-  }
-
+  if (item.morning) price += getDrinkSurcharge(getMorningDrink(item.id, index));
+  if (item.morning && morningUpgrades[item.id]) price += 100;
   return price;
 }
 
-function displayItemName(item) {
+function displayItemName(item, index = 0) {
   if (!item.morning) return item.name;
-
   const options = [];
   if (morningUpgrades[item.id]) options.push(morningUpgrades[item.id]);
-  if (morningDrinks[item.id]) options.push(morningDrinks[item.id]);
-
+  const drink = getMorningDrink(item.id, index);
+  if (drink) options.push(drink);
   return item.name + (options.length ? '＋' + options.join('＋') : '');
+}
+
+function getOrderLines() {
+  const lines = [];
+  MENU.forEach(item => {
+    const qty = counts[item.id] || 0;
+    if (qty <= 0) return;
+    if (item.morning) {
+      for (let i = 0; i < qty; i++) {
+        lines.push({
+          emoji: item.emoji,
+          name: displayItemName(item, i),
+          count: 1,
+          subtotal: getUnitPrice(item, i),
+          item
+        });
+      }
+    } else {
+      lines.push({
+        emoji: item.emoji,
+        name: item.name,
+        count: qty,
+        subtotal: item.price * qty,
+        item
+      });
+    }
+  });
+  return lines;
 }
 
 function change(id, delta) {
@@ -827,7 +858,9 @@ function change(id, delta) {
   counts[id] = Math.max(0, counts[id] + delta);
 
   // フォカッチャの「あと○セット選べます」表示も数量変更のたびに更新
-  if (id === 'focaccia') {
+  const changedItem = MENU.find(m => m.id === id);
+
+  if (id === 'focaccia' || (changedItem && changedItem.morning)) {
     renderMenu();
   } else {
     const el = document.getElementById('count-' + id);
@@ -839,15 +872,15 @@ function change(id, delta) {
 }
 
 function updateSummary() {
-  const items = MENU.filter(m => counts[m.id] > 0);
-  const total = items.reduce((s, m) => s + getUnitPrice(m) * counts[m.id], 0);
+  const lines = getOrderLines();
+  const total = lines.reduce((s, line) => s + line.subtotal, 0);
   const summary = document.getElementById('orderSummary');
-  if (items.length === 0) { summary.classList.remove('visible'); return; }
+  if (lines.length === 0) { summary.classList.remove('visible'); return; }
   summary.classList.add('visible');
-  document.getElementById('summaryItems').innerHTML = items.map(m => `
+  document.getElementById('summaryItems').innerHTML = lines.map(line => `
     <div class="summary-row">
-      <span>${displayItemName(m)} × ${counts[m.id]}</span>
-      <span>¥${(getUnitPrice(m) * counts[m.id]).toLocaleString()}</span>
+      <span>${line.name} × ${line.count}</span>
+      <span>¥${line.subtotal.toLocaleString()}</span>
     </div>
   `).join('');
   document.getElementById('summaryTotal').textContent = '¥' + total.toLocaleString();
@@ -899,9 +932,16 @@ if (hasMorningSet) {
   }
 }
 
-const morningWithoutDrink = items.find(m => m.morning && !morningDrinks[m.id]);
+const morningWithoutDrink = items.find(m => {
+    if (!m.morning) return false;
+    const qty = counts[m.id] || 0;
+    for (let i = 0; i < qty; i++) {
+      if (!getMorningDrink(m.id, i)) return true;
+    }
+    return false;
+  });
   if (morningWithoutDrink) {
-    showError('モーニングセットのドリンクを選んでください');
+    showError('モーニングセットは1個ずつドリンクを選んでください');
     return;
   }
 
@@ -923,16 +963,17 @@ const morningWithoutDrink = items.find(m => m.morning && !morningDrinks[m.id]);
     }
   }
 
-  const total = items.reduce((s, m) => s + getUnitPrice(m) * counts[m.id], 0);
+  const orderLines = getOrderLines();
+  const total = orderLines.reduce((s, line) => s + line.subtotal, 0);
   const yyyy = pickupDate.substring(0,4), mm = pickupDate.substring(5,7), dd = pickupDate.substring(8,10);
   const pickupDateFormatted = mm + '/' + dd;
   const payload = {
     name, phone, pickupDate, pickupTime: `${pickupDateFormatted} ${pickupTime}`, total, lineUserId,
-    items: items.map(m => ({
-      emoji: m.emoji,
-      name: displayItemName(m),
-      count: counts[m.id],
-      subtotal: (getUnitPrice(m) * counts[m.id]).toLocaleString(),
+    items: orderLines.map(line => ({
+      emoji: line.emoji,
+      name: line.name,
+      count: line.count,
+      subtotal: line.subtotal.toLocaleString(),
     })),
   };
 
@@ -942,7 +983,7 @@ const morningWithoutDrink = items.find(m => m.morning && !morningDrinks[m.id]);
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    showSuccess(name, `${pickupDateLabel} ${pickupTime}`, items, total);
+    showSuccess(name, `${pickupDateLabel} ${pickupTime}`, orderLines, total);
   } catch (e) {
     showError('通信エラーが発生しました。ネットワークを確認してください。');
   } finally {
@@ -962,7 +1003,7 @@ function showError(msg) {
 function showSuccess(name, pickupTime, items, total) {
   document.getElementById('successDetail').innerHTML =
     `<span style="color:var(--accent);font-size:11px;letter-spacing:0.15em;">ORDER</span><br><br>` +
-    items.map(m => `${m.emoji} ${m.name} × ${counts[m.id]}`).join('<br>') +
+    items.map(line => `${line.emoji} ${line.name} × ${line.count}`).join('<br>') +
     `<br><br>` +
     `<span style="color:var(--muted);font-size:12px;">合計 ¥${total.toLocaleString()}</span><br>` +
     `<span style="color:var(--muted);font-size:12px;">🕐 ピックアップ ${pickupTime}｜${name} 様</span>`;
@@ -1012,6 +1053,8 @@ function cancelOrder() {
 
 function resetOrder() {
   MENU.forEach(m => counts[m.id] = 0);
+  morningDrinks = {};
+  morningUpgrades = {};
   document.getElementById('nameInput').value = lineDisplayName || '';
   document.getElementById('pickupDate').value = '';
   document.getElementById('pickupTime').innerHTML = '<option value="">先に日付を選んでください</option>';
