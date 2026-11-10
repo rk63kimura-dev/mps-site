@@ -325,6 +325,17 @@
   </div>
 </div>
 
+<div class="input-card second">
+  <span class="field-label">📝 備考（任意）</span>
+  <textarea
+    id="orderNote"
+    maxlength="120"
+    rows="3"
+    placeholder="例：パンを切ってください。焼かないでください。"
+    style="width:100%;box-sizing:border-box;margin-top:8px;padding:12px 13px;border:1px solid #d9c8b5;border-radius:10px;background:#fffaf5;font-size:15px;line-height:1.5;font-family:inherit;resize:vertical;"
+  ></textarea>
+</div>
+
 <div class="order-summary" id="orderSummary">
   <div class="summary-title">Order</div>
   <div id="summaryItems"></div>
@@ -901,6 +912,7 @@ async function submitOrder() {
   const pickupDate = document.getElementById('pickupDate').value;
   const pickupDateLabel = document.getElementById('pickupDate').options[document.getElementById('pickupDate').selectedIndex]?.text || '';
   const pickupTime = document.getElementById('pickupTime').value;
+  const orderNote = document.getElementById('orderNote').value.trim();
   const items = MENU.filter(m => counts[m.id] > 0);
   document.getElementById('errorMsg').classList.remove('show');
 
@@ -967,14 +979,23 @@ const morningWithoutDrink = items.find(m => {
   const total = orderLines.reduce((s, line) => s + line.subtotal, 0);
   const yyyy = pickupDate.substring(0,4), mm = pickupDate.substring(5,7), dd = pickupDate.substring(8,10);
   const pickupDateFormatted = mm + '/' + dd;
+  const payloadItems = orderLines.map(line => ({
+    emoji: line.emoji,
+    name: line.name,
+    count: line.count,
+    subtotal: line.subtotal.toLocaleString(),
+  }));
+
+  // 現在のGAS通知形式でも備考が確実にLINEへ表示されるよう、
+  // 最後の商品金額の次行に備考を付ける。
+  if (orderNote && payloadItems.length > 0) {
+    payloadItems[payloadItems.length - 1].subtotal += '\n📝 備考：' + orderNote;
+  }
+
   const payload = {
     name, phone, pickupDate, pickupTime: `${pickupDateFormatted} ${pickupTime}`, total, lineUserId,
-    items: orderLines.map(line => ({
-      emoji: line.emoji,
-      name: line.name,
-      count: line.count,
-      subtotal: line.subtotal.toLocaleString(),
-    })),
+    note: orderNote,
+    items: payloadItems,
   };
 
     await fetch(GAS_URL, {
@@ -983,7 +1004,7 @@ const morningWithoutDrink = items.find(m => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    showSuccess(name, `${pickupDateLabel} ${pickupTime}`, orderLines, total);
+    showSuccess(name, `${pickupDateLabel} ${pickupTime}`, orderLines, total, orderNote);
   } catch (e) {
     showError('通信エラーが発生しました。ネットワークを確認してください。');
   } finally {
@@ -1000,13 +1021,27 @@ function showError(msg) {
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-function showSuccess(name, pickupTime, items, total) {
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function showSuccess(name, pickupTime, items, total, orderNote) {
+  const noteHtml = orderNote
+    ? `<br><span style="color:var(--muted);font-size:12px;">📝 備考：${escapeHtml(orderNote).replace(/\n/g, '<br>')}</span>`
+    : '';
+
   document.getElementById('successDetail').innerHTML =
     `<span style="color:var(--accent);font-size:11px;letter-spacing:0.15em;">ORDER</span><br><br>` +
     items.map(line => `${line.emoji} ${line.name} × ${line.count}`).join('<br>') +
     `<br><br>` +
     `<span style="color:var(--muted);font-size:12px;">合計 ¥${total.toLocaleString()}</span><br>` +
-    `<span style="color:var(--muted);font-size:12px;">🕐 ピックアップ ${pickupTime}｜${name} 様</span>`;
+    `<span style="color:var(--muted);font-size:12px;">🕐 ピックアップ ${pickupTime}｜${name} 様</span>` +
+    noteHtml;
   document.getElementById('successScreen').classList.add('show');
 }
 
@@ -1059,6 +1094,7 @@ function resetOrder() {
   document.getElementById('pickupDate').value = '';
   document.getElementById('pickupTime').innerHTML = '<option value="">先に日付を選んでください</option>';
   document.getElementById('pickupTime').disabled = true;
+  document.getElementById('orderNote').value = '';
   document.getElementById('errorMsg').classList.remove('show');
   document.getElementById('successScreen').classList.remove('show');
   renderMenu();
