@@ -986,10 +986,10 @@ const morningWithoutDrink = items.find(m => {
     subtotal: line.subtotal.toLocaleString(),
   }));
 
-  // 現在のGAS通知形式でも備考が確実にLINEへ表示されるよう、
-  // 最後の商品金額の次行に備考を付ける。
+  // GASの注文記録は商品名を保存するため、備考も商品名側に付けて
+  // 店側モニター・LINE通知の両方に確実に残す。
   if (orderNote && payloadItems.length > 0) {
-    payloadItems[payloadItems.length - 1].subtotal += '\n📝 備考：' + orderNote;
+    payloadItems[payloadItems.length - 1].name += '\n📝 備考：' + orderNote;
   }
 
   const payload = {
