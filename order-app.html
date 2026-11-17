@@ -368,7 +368,10 @@ const LIFF_ID = '2009748384-YPMycy7M';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzXwYj0UUbFs0yCvQXOgxQX5571LWm2eifE0_MpW-B7VslnQFsFRkSGgfx8RlS8lneBOQ/exec';
 
 const todayForMenu = new Date();
-const prosciuttoSoldOut = false; // 販売再開
+const prosciuttoSoldOut =
+  todayForMenu.getFullYear() === 2026 &&
+  todayForMenu.getMonth() === 10 &&
+  todayForMenu.getDate() === 18; // 11/18だけ売り切れ
 
 const todayForSalmon = new Date();
 const salmonSoldOut =
@@ -403,7 +406,9 @@ const MENU = [
 let counts = {};
 let morningDrinks = {};
 
-const BLOCKED_ITEM_IDS = new Set([]);
+const BLOCKED_ITEM_IDS = new Set(
+  prosciuttoSoldOut ? ['morning_prosciutto', 'prosciutto'] : []
+);
 
 const MORNING_UPGRADES = {
   morning_prosciutto: 'バジルペースト入り'
