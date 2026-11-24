@@ -377,7 +377,7 @@ const todayForSalmon = new Date();
 const salmonSoldOut =
   todayForSalmon.getFullYear() === 2026 &&
   todayForSalmon.getMonth() === 10 &&
-  todayForSalmon.getDate() === 2; // 11/2だけ売り切れ
+  todayForSalmon.getDate() === 25; // 11/25だけ売り切れ
 
 const MENU = [
   { id: 'morning_pork', emoji: '🌅', name: 'MORNING SET｜プルドポーク', price: 550, morning: true, note: 'モーニングサイズ・ドリンク付き・9:00まで・お持ち帰りOK' },
@@ -406,9 +406,10 @@ const MENU = [
 let counts = {};
 let morningDrinks = {};
 
-const BLOCKED_ITEM_IDS = new Set(
-  prosciuttoSoldOut ? ['morning_prosciutto', 'prosciutto'] : []
-);
+const BLOCKED_ITEM_IDS = new Set([
+  ...(prosciuttoSoldOut ? ['morning_prosciutto', 'prosciutto'] : []),
+  ...(salmonSoldOut ? ['morning_salmon', 'salmon'] : [])
+]);
 
 const MORNING_UPGRADES = {
   morning_prosciutto: 'バジルペースト入り'
