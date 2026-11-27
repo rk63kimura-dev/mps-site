@@ -1108,7 +1108,15 @@ function resetOrder() {
   window.scrollTo(0, 0);
 }
 
-if (new URLSearchParams(location.search).get('pickup') === 'container') {
+function isContainerPickup(search) {
+  const params = new URLSearchParams(search);
+  if (params.get('pickup') === 'container') return true;
+  const state = params.get('liff.state') || '';
+  const start = state.indexOf('?');
+  return start >= 0 && new URLSearchParams(state.slice(start + 1).split('#')[0]).get('pickup') === 'container';
+}
+
+if (isContainerPickup(location.search)) {
   document.getElementById('submitBtn').disabled = true;
   const script = document.createElement('script');
   script.onerror = () => {
