@@ -1108,11 +1108,22 @@ function resetOrder() {
   window.scrollTo(0, 0);
 }
 
-renderMenu();
-updateTodayBanner();
-buildDateOptions();
-initLiff();
-loadMorningStock();
+if (new URLSearchParams(location.search).get('pickup') === 'container') {
+  document.getElementById('submitBtn').disabled = true;
+  const script = document.createElement('script');
+  script.onerror = () => {
+    document.getElementById('initScreen').classList.add('hide');
+    showError('昼予約を読み込めませんでした。画面を開き直してください。');
+  };
+  script.src = 'container-order.js';
+  document.body.appendChild(script);
+} else {
+  renderMenu();
+  updateTodayBanner();
+  buildDateOptions();
+  initLiff();
+  loadMorningStock();
+}
 </script>
 </body>
 </html>
